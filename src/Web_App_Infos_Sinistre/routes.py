@@ -13,7 +13,7 @@ from flask import Flask, render_template, flash, redirect
 # flash: Displays temporary messages to users (like "Success!" or "Error!")
 # redirect: Sends users to a different URL after an action (like after form submission)
 
-#from forms import ProjetForm  # Import the project form we defined
+# from forms import ProjetForm  # Import the project form we defined
 from config import Config  # Import configuration settings
 from forms import InfosInputForm
 
@@ -25,15 +25,19 @@ app = Flask(__name__)
 # This loads SECRET_KEY and other configuration values
 app.config.from_object(Config)
 
-# Route 1: input
-@app.route('/infos_input',methods = 'POST')
-def form_info_input():
+
+@app.route('/infos_sinistre', methods=['GET', 'POST'])
+def form_info_sinistre():
     inputForm = InfosInputForm()
     if inputForm.validate_on_submit():
         # If we reach here, the form data is valid!
+        inputs = {
+            "lat": inputForm.lat.data,
+            "long": inputForm.long.data,
+            "zoom": inputForm.zoom.data
+        }
 
-        return redirect('/index')
+        return render_template('infos_output.html', data=inputs)
+
     return render_template('form_infos_input.html',
                            form=inputForm)
-
-    # Route 2: output

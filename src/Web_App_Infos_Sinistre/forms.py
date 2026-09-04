@@ -12,8 +12,8 @@ class InfosInputForm(FlaskForm):
     -Niveau de zoom (default 15)
     """
 
-    Lat =   FloatField("Latitude", validators=[DataRequired()])
-    Long =  FloatField("Longitude", validators=[DataRequired()])
+    lat =   FloatField("Latitude", validators=[DataRequired()])
+    long =  FloatField("Longitude", validators=[DataRequired()])
 
     zoom =  IntegerField("Niveau de zoom", validators=[DataRequired()])
     submit = SubmitField("Sauvegarder")

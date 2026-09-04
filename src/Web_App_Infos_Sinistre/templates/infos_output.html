@@ -9,7 +9,7 @@
   style="border:0" 
   loading="lazy" 
   allowfullscreen 
-{% block URI %}  src="https://maps.google.com/maps?q={{lat}},{{long}}&z={{zoom}}&output=embed">{% endblock %}
+{% block URI %}  src="https://maps.google.com/maps?q={{data.lat}},{{data.long}}&z={{data.zoom}}&output=embed">{% endblock %}
 </iframe>
 {% endblock %}
 
