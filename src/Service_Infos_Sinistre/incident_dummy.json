@@ -1,0 +1,25 @@
+{
+    "id": 1,
+    "id_reclam": [
+        "DESE202609091"
+    ],
+
+...
+
+
+    "date": "yyyy-mm-dd",
+    "Heure": "hh:mm",
+    "Lat": 0.00,
+    "Long": 0.00,
+    "meteo": {
+        "precipitations_24h_mm": 0.0,
+        "vent_kph": 0.0,
+        "temperature_C": 0.0,
+        "temperature_min_24h_C": 0.0,
+        "resume_conditions":"Résumé des conditions de la journée"
+    },
+    "cartes":{
+        "vue_plan":"http://<URL du plan>",
+        "vue_satellite":"http://<URL de la vue satellite>"
+    }
+}

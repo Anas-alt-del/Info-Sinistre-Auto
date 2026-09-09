@@ -1,4 +1,7 @@
 /src/Service_Infos_Sinistre/.idea
 /src/Service_Infos_Sinistre/.venv
+/src/Service_Infos_Sinistre/.idea/*
+/src/Service_Infos_Sinistre/.venv/*
 /src/Web_App_Infos_Sinistre/.idea
 /src/Web_App_Infos_Sinistre/.venv
+
