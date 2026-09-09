@@ -1,7 +1,7 @@
 '''
 Ce service reçoit les données entrantes (lat + long +
-date + heure), collecte les données météo depuis leur source,
-les traite et les renvoie au service Data au format JSON
+date + heure) depuis Service_Data, collecte les données météo depuis leur source,
+les traite et les renvoie à Service_Data au format JSON
 '''
 
 import json
@@ -11,14 +11,14 @@ from shapely.geometry import shape, Point
 from datetime import datetime, timedelta
 from operator import concat
 
-from flask import Flask, jsonify, request
+from flask import Flask, request
 import requests
 
 app = Flask(__name__)
 
 
 @app.route('/CollecteData', methods=['GET'])
-def get_data():
+def collecte_data():
     input = request.get_json()
     print(input)  # imprimer payload
     lat = input["lat"]
