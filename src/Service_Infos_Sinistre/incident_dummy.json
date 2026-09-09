@@ -1,25 +1,32 @@
 {
     "id": 1,
-    "id_reclam": [
+    "id_reclamation": [
         "DESE202609091"
     ],
-
-...
-
-
-    "date": "yyyy-mm-dd",
-    "Heure": "hh:mm",
-    "Lat": 0.00,
-    "Long": 0.00,
-    "meteo": {
-        "precipitations_24h_mm": 0.0,
-        "vent_kph": 0.0,
-        "temperature_C": 0.0,
-        "temperature_min_24h_C": 0.0,
-        "resume_conditions":"Résumé des conditions de la journée"
+    "date": "2026-01-01",
+    "heure": "9:48",
+    "localisation": {
+        "latitude": 45.5358,
+        "longitude": -73.6163
     },
-    "cartes":{
-        "vue_plan":"http://<URL du plan>",
-        "vue_satellite":"http://<URL de la vue satellite>"
-    }
+    "meteo_hourly": [
+        {
+            "temperature": -5.9,
+            "rain": 0,
+            "snow": 0,
+            "cloud": 0.90,
+            "wind_speed": 10,
+            "wind_direction": 251,
+            "weather": 3
+        }
+    ],
+    "meteo_daily": {
+        "temperature_min_24h": -10,
+        "temperature_max_24h": -2,
+        "rain_24h": 0,
+        "snow_24h": 1,
+        "sunrise": 7:35,
+        "sunset": 16:35
+    },
+    "zone_degel": 1
 }
