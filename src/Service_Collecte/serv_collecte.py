@@ -17,7 +17,7 @@ import requests
 app = Flask(__name__)
 
 
-@app.route('/CollecteData', methods=['GET'])
+@app.route('/collecte_data', methods=['GET'])
 def collecte_data():
     input = request.get_json()
     print(input)  # imprimer payload
@@ -28,7 +28,7 @@ def collecte_data():
     # effectuer une opération sur la date (soustraire 1 jour)
     date = datetime.strptime(date_heure, "%Y-%m-%dT%H:%M").date()
 
-    # Appel à l'API open-meteo
+    ## Appel à l'API open-meteo
     URI_SERV_METEO = (f'https://archive-api.open-meteo.com/v1/archive?'
                       f'latitude={lat}&'
                       f'longitude={long}&'
@@ -47,7 +47,7 @@ def collecte_data():
     # Arrondir date_heure au début de l'heure (remplacer les 2
     # derniers caractères par 00)
     date_heure_arr = concat(date_heure[:-2], '00')
-    heures = data_meteo["hourly"]["time"]
+    heures = data_meteo["hourly"]["time"] # liste des heures correspondant aux points de données
     index_heure = heures.index(date_heure_arr)
 
     # Données des 24h pertinentes
@@ -62,7 +62,7 @@ def collecte_data():
     neige_24h = sum(neige)
     print(temp_min, temp_max, pluie_24h, neige_24h)
 
-    # Zone de dégel
+    ## Zone de dégel
     # Chargement du fichier geoJSON
     URI_ZONE_DEGEL = ('https://ws.mapserver.transports.gouv.qc.ca/swtq?'
                       'service=wfs&'
@@ -79,34 +79,43 @@ def collecte_data():
     # On teste chaque poygone contenu dans le fichier geoJSON pour
     # déterminer si il contient les coordonnées renseignées, tant qu'on
     # n'a pas trouvé le bon
-    trouve = 0
-    while trouve == 0:
-        for feature in data_degel['features']:
+    trouve = False
+    for feature in data_degel['features']:
+        if not trouve:
             polygon = shape(feature['geometry'])
             if polygon.contains(point):
                 zone_degel = feature['properties']['zone']
                 periode_degel = f'{feature['properties']['dat_debut_zone']} - {feature['properties']['dat_fin_zone']}'
-                trouve = 1
+                trouve = True
 
+    # Cas où on trouve pas les coordonnées après avoir parcouru tous les polygones (i.e. coordonnées hors Québec):
+    if not trouve:
+        zone_degel = periode_degel = 'N/A'
 
+    # Document JSON retourné par le service
     info_meteo = {
-        'temperature': data_meteo["hourly"]["temperature_2m"][index_heure],
-        'pluie': data_meteo["hourly"]["rain"][index_heure],
-        'neige': data_meteo["hourly"]["snowfall"][index_heure],
-        'couverture_nuageuse': data_meteo["hourly"]["cloud_cover"][index_heure],
-        'vitesse_vent': data_meteo["hourly"]["wind_speed_10m"][index_heure],
-        'direction_vent': data_meteo["hourly"]["wind_direction_10m"][index_heure],
-        'code_WMO': data_meteo["hourly"]["weather_code"][index_heure],
-        'temperature_min': temp_min,
-        'temperature_max': temp_max,
-        'pluie_24h': pluie_24h,
-        'neige_24h': neige_24h,
-        'zone_degel': zone_degel,
-        'periode_degel': periode_degel
+        'horaire': {
+            'temperature_C': data_meteo["hourly"]["temperature_2m"][index_heure],
+            'pluie_mm': data_meteo["hourly"]["rain"][index_heure],
+            'neige_cm': data_meteo["hourly"]["snowfall"][index_heure],
+            'couverture_nuageuse_%': data_meteo["hourly"]["cloud_cover"][index_heure],
+            'vitesse_vent_kmh': data_meteo["hourly"]["wind_speed_10m"][index_heure],
+            'direction_vent_deg': data_meteo["hourly"]["wind_direction_10m"][index_heure],
+            'code_WMO': data_meteo["hourly"]["weather_code"][index_heure]
+        },
+        'journalier': {
+            'temperature_min_C': temp_min,
+            'temperature_max_C': temp_max,
+            'pluie_24h_mm': pluie_24h,
+            'neige_24h_cm': neige_24h,
+            'lever_soleil': data_meteo["daily"]["sunrise"][-1],
+            'coucher_soleil': data_meteo["daily"]["sunset"][-1],
+            'zone_degel': zone_degel,
+            'periode_degel': periode_degel
+        }
     }
-
     return (info_meteo)
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port = 5020)
