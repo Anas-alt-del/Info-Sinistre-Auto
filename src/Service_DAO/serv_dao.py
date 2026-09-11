@@ -6,6 +6,7 @@ from modeles import Incident, Localisation, MeteoHourly, MeteoDaily
 app = Flask(__name__)
 DB_URI = 'incidents.json'
 
+
 def initialiser_db():
     # si la db n'existe pas, la créer
     if not os.path.exists(DB_URI) or os.path.getsize(DB_URI) == 0:
@@ -14,11 +15,13 @@ def initialiser_db():
             json.dump(data, fout, indent=4)
     print("- Base de données initialisée")
 
+
 def valider_incident(jsondata):
     return True
     # à faire plus tard
 
-def insert_document(obj):
+
+def inserer_document(obj):
     # récupérer le data de la collection
     with open(DB_URI, 'r', encoding='utf-8') as fin:
         data = json.load(fin)
@@ -34,6 +37,7 @@ def insert_document(obj):
     with open(DB_URI, 'w', encoding='utf-8') as fout:
         json.dump(data, fout, indent=4)
 
+
 def get_next_id(data):
     # chercher dans les données pour le dernier id_incident et ajouter 1
     # s'il n'y a aucun document enregistré, retourner 0
@@ -41,6 +45,7 @@ def get_next_id(data):
     id_list = [doc.get("id_incident") for doc in documents if doc.get("id_incident") is not None]
     next_id = max(id_list) + 1 if id_list else 0
     return next_id
+
 
 @app.route('/dao/incidents', methods=['POST'])
 def creer_incident():
@@ -79,7 +84,7 @@ def creer_incident():
 
     # insérer le nouveau document dans la db
     #       (le #id est auto-généré et assigné)
-    insert_document(incident)
+    inserer_document(incident)
 
     # retourner le nouveau document avec le code de succès 201
     return Response(
@@ -88,6 +93,8 @@ def creer_incident():
         mimetype='application/json'
     )
 
+
 if __name__ == '__main__':
     initialiser_db()
     app.run(debug=True, port=5601)
+    
