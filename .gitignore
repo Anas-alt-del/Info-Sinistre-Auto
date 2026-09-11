@@ -4,5 +4,11 @@
 /src/Web_App_Infos_Sinistre/.venv
 /src/Service_Collecte/.idea
 /src/Service_Collecte/.venv
+<<<<<<< Updated upstream
 /src/Service_Data/.idea
 /src/Service_Data/.venv
+=======
+/src/Service_DAO/.idea
+/src/Service_DAO/.venv
+/src/Service_DAO/__pycache__
+>>>>>>> Stashed changes

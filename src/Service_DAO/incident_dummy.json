@@ -1,5 +1,4 @@
 {
-    "id": 1,
     "id_reclamation": [
         "DESE202609091"
     ],
@@ -9,24 +8,22 @@
         "latitude": 45.5358,
         "longitude": -73.6163
     },
-    "meteo_hourly": [
-        {
-            "temperature": -5.9,
-            "rain": 0,
-            "snow": 0,
-            "cloud": 0.90,
-            "wind_speed": 10,
-            "wind_direction": 251,
-            "weather": 3
-        }
-    ],
+    "meteo_hourly": {
+        "temperature": -5.9,
+        "rain": 0,
+        "snow": 0,
+        "cloud": 0.90,
+        "wind_speed": 10,
+        "wind_direction": 251,
+        "weather_code": 3
+    },
     "meteo_daily": {
         "temperature_min_24h": -10,
         "temperature_max_24h": -2,
         "rain_24h": 0,
-        "snow_24h": 1,
-        "sunrise": 7:35,
-        "sunset": 16:35
+        "snow_24h": 2,
+        "sunrise": "7:35",
+        "sunset": "16:35"
     },
     "zone_degel": 1
 }
