@@ -16,19 +16,21 @@ def get_data():
     # Appel à Service_DAO pour vérifier si un document correspondant
     # aux données utilisateur existe déjà (GET)
     input = request.get_json()
-    lat = input["lat"]
-    long = input["long"]
+    latitude = input["lat"]
+    longitude = input["long"]
     date = input["date"]
     heure = input["heure"]
     id_reclamation = input["id_reclamation"]
 
     URI_SERV_DAO = ''
+    pass
+
     # Appel à Service_Collecte si Service_DAO ne trouve pas un document
     # correspondant
     URI_SERV_COLLECTE = 'http://127.0.0.1:5020/collecte_data'
     info_meteo = requests.get(URI_SERV_COLLECTE, json={
-        "lat": lat,
-        "long": long,
+        "latitude": latitude,
+        "longitude": longitude,
         "date": date,
         "heure": heure
     }).json()
@@ -40,7 +42,8 @@ def get_data():
 
     # Envoi du document à Service_DAO afin de l'insérer dans la
     # collection (POST)
-
+    pass
+    
     # Réponse à la requête entrante avec le document JSON
     return (info_sinistre)
 
