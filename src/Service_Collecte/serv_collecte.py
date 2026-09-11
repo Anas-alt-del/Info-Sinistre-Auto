@@ -21,8 +21,8 @@ app = Flask(__name__)
 def collecte_data():
     input = request.get_json()
     print(input)  # imprimer payload
-    lat = input["lat"]
-    long = input["long"]
+    latitude = input["latitude"]
+    longitude = input["longitude"]
     date_heure = f'{input["date"]}T{input["heure"]}'  # Format utilisé par l'API
     # conversion de la date au format datetime.date afin de pouvoir
     # effectuer une opération sur la date (soustraire 1 jour)
@@ -30,8 +30,8 @@ def collecte_data():
 
     ## Appel à l'API open-meteo
     URI_SERV_METEO = (f'https://archive-api.open-meteo.com/v1/archive?'
-                      f'latitude={lat}&'
-                      f'longitude={long}&'
+                      f'latitude={latitude}&'
+                      f'longitude={longitude}&'
                       f'start_date={date - timedelta(days=1)}&'
                       f'end_date={date}&'
                       'daily=sunrise,sunset&'
@@ -47,7 +47,7 @@ def collecte_data():
     # Arrondir date_heure au début de l'heure (remplacer les 2
     # derniers caractères par 00)
     date_heure_arr = concat(date_heure[:-2], '00')
-    heures = data_meteo["hourly"]["time"] # liste des heures correspondant aux points de données
+    heures = data_meteo["hourly"]["time"]  # liste des heures correspondant aux points de données
     index_heure = heures.index(date_heure_arr)
 
     # Données des 24h pertinentes
@@ -74,7 +74,8 @@ def collecte_data():
                       'outputformat=geojson')
     data_degel = requests.get(URI_ZONE_DEGEL).json()
 
-    point = Point(long, lat)
+    # Création d'un objet Point contenant les coordonnées de l'incident
+    point = Point(longitude, latitude)
 
     # On teste chaque poygone contenu dans le fichier geoJSON pour
     # déterminer si il contient les coordonnées renseignées, tant qu'on
@@ -118,4 +119,4 @@ def collecte_data():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port = 5020)
+    app.run(debug=True, port=5020)
