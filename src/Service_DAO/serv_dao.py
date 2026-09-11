@@ -6,19 +6,22 @@ from modeles import Incident, Localisation, MeteoHourly, MeteoDaily
 app = Flask(__name__)
 DB_URI = 'incidents.json'
 
+
 def initialiser_db():
     # si la db n'existe pas, la créer
     if not os.path.exists(DB_URI) or os.path.getsize(DB_URI) == 0:
         data = { "documents": [] }
         with open(DB_URI, 'w', encoding='utf-8') as fout:
             json.dump(data, fout, indent=4)
-    print("Base de données initialisée")
+    print("- Base de données initialisée")
+
 
 def valider_incident(jsondata):
     return True
     # à faire plus tard
 
-def insert_incident(obj):
+
+def inserer_document(obj):
     # récupérer le data de la collection
     with open(DB_URI, 'r', encoding='utf-8') as fin:
         data = json.load(fin)
@@ -34,16 +37,18 @@ def insert_incident(obj):
     with open(DB_URI, 'w', encoding='utf-8') as fout:
         json.dump(data, fout, indent=4)
 
+
 def get_next_id(data):
-    # chercher dans le json pour le dernier id_incident et ajouter 1
+    # chercher dans les données pour le dernier id_incident et ajouter 1
     # s'il n'y a aucun document enregistré, retourner 0
     documents = data.get("documents", [])
     id_list = [doc.get("id_incident") for doc in documents if doc.get("id_incident") is not None]
     next_id = max(id_list) + 1 if id_list else 0
     return next_id
 
+
 @app.route('/dao/incidents', methods=['POST'])
-def creer_incidents():
+def creer_incident():
     # récupérer le payload
     jsondata = request.get_json()
 
@@ -51,7 +56,7 @@ def creer_incidents():
     if not valider_incident(jsondata):
         return jsonify({'error': 'Bad request'}), 400
 
-    # créer le nouveau document
+    # créer le nouveau document en objet
     incident = Incident(
         id_reclamation=jsondata.get('id_reclamation'),
         date=jsondata.get('date'),
@@ -66,22 +71,20 @@ def creer_incidents():
             cloud=jsondata.get('meteo_hourly').get('cloud'),
             wind_speed=jsondata.get('meteo_hourly').get('wind_speed'),
             wind_direction=jsondata.get('meteo_hourly').get('wind_direction'),
-            weather_code=jsondata.get('meteo_hourly').get('weather_code'),
-        ),
+            weather_code=jsondata.get('meteo_hourly').get('weather_code')),
         meteo_daily=MeteoDaily(
             jsondata.get('meteo_daily').get('temperature_min_24h'),
             jsondata.get('meteo_daily').get('temperature_max_24h'),
             jsondata.get('meteo_daily').get('rain_24h'),
             jsondata.get('meteo_daily').get('snow_24h'),
             jsondata.get('meteo_daily').get('sunrise'),
-            jsondata.get('meteo_daily').get('sunset')
-        ),
+            jsondata.get('meteo_daily').get('sunset')),
         zone_degel=jsondata.get('zone_degel')
     )
 
     # insérer le nouveau document dans la db
     #       (le #id est auto-généré et assigné)
-    insert_incident(incident)
+    inserer_document(incident)
 
     # retourner le nouveau document avec le code de succès 201
     return Response(
@@ -90,6 +93,8 @@ def creer_incidents():
         mimetype='application/json'
     )
 
+
 if __name__ == '__main__':
     initialiser_db()
     app.run(debug=True, port=5601)
+    
