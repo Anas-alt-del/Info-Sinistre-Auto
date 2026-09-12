@@ -8,22 +8,23 @@
         "latitude": 45.5358,
         "longitude": -73.6163
     },
-    "meteo_hourly": {
-        "temperature": -5.9,
-        "rain": 0,
-        "snow": 0,
-        "cloud": 0.90,
-        "wind_speed": 10,
-        "wind_direction": 251,
-        "weather_code": 3
+    "horaire": {
+        "temperature_c": -5.9,
+        "pluie_mm": 0,
+        "neige_cm": 0,
+        "couverture_nuageuse_pct": 0.90,
+        "vitesse_vent_kmh": 10,
+        "direction_vent_deg": 251,
+        "code_WMO": 3
     },
-    "meteo_daily": {
-        "temperature_min_24h": -10,
-        "temperature_max_24h": -2,
-        "rain_24h": 0,
-        "snow_24h": 2,
-        "sunrise": "7:35",
-        "sunset": "16:35"
+    "journalier": {
+        "temperature_min_C": -10,
+        "temperature_max_C": -2,
+        "pluie_24h_mm": 0,
+        "neige_24h_cm": 2,
+        "lever_soleil": "7:35",
+        "coucher_soleil": "16:35"
     },
-    "zone_degel": 1
+    "zone_degel": "Zone 3",
+    "periode_degel": "2026-04-20 00h01 - 2026-05-29 23h59"
 }
