@@ -99,7 +99,7 @@ def collecte_data():
             'temperature_C': data_meteo["hourly"]["temperature_2m"][index_heure],
             'pluie_mm': data_meteo["hourly"]["rain"][index_heure],
             'neige_cm': data_meteo["hourly"]["snowfall"][index_heure],
-            'couverture_nuageuse_%': data_meteo["hourly"]["cloud_cover"][index_heure],
+            'couverture_nuageuse_pct': data_meteo["hourly"]["cloud_cover"][index_heure],
             'vitesse_vent_kmh': data_meteo["hourly"]["wind_speed_10m"][index_heure],
             'direction_vent_deg': data_meteo["hourly"]["wind_direction_10m"][index_heure],
             'code_WMO': data_meteo["hourly"]["weather_code"][index_heure]
