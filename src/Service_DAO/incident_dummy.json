@@ -1,30 +1,30 @@
 {
-    "id_reclamation": [
-        "DESE202609091"
-    ],
-    "date": "2026-01-01",
-    "heure": "9:48",
-    "localisation": {
-        "latitude": 45.5358,
-        "longitude": -73.6163
+    "info_dossier": {
+        "date": "2024-12-31",
+        "heure": "19:15",
+        "id_reclamation": ["ABC123"],
+        "latitude": 49.913,
+        "longitude": -74.369
     },
-    "horaire": {
-        "temperature_c": -5.9,
-        "pluie_mm": 0,
-        "neige_cm": 0,
-        "couverture_nuageuse_pct": 0.90,
-        "vitesse_vent_kmh": 10,
-        "direction_vent_deg": 251,
-        "code_WMO": 3
-    },
-    "journalier": {
-        "temperature_min_C": -10,
-        "temperature_max_C": -2,
-        "pluie_24h_mm": 0,
-        "neige_24h_cm": 2,
-        "lever_soleil": "7:35",
-        "coucher_soleil": "16:35"
-    },
-    "zone_degel": "Zone 3",
-    "periode_degel": "2026-04-20 00h01 - 2026-05-29 23h59"
+    "info_meteo": {
+        "horaire": {
+            "code_WMO": 3,
+            "couverture_nuageuse_pct": 100,
+            "direction_vent_deg": 230,
+            "neige_cm": 0.0,
+            "pluie_mm": 0.0,
+            "temperature_C": -0.9,
+            "vitesse_vent_kmh": 11.5
+        },
+        "journalier": {
+            "coucher_soleil": "2024-12-31T17:06",
+            "lever_soleil": "2024-12-31T08:55",
+            "neige_24h_cm": 1.26,
+            "periode_degel": "2026-04-20  00h01 - 2026-05-29  23h59",
+            "pluie_24h_mm": 3.5,
+            "temperature_max_C": 2.0,
+            "temperature_min_C": -0.9,
+            "zone_degel": "Zone 3"
+        }
+    }
 }
