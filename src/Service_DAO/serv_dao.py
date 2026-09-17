@@ -158,7 +158,7 @@ def chercher_incident():
     incident = select_incident(info_dossier)
     print(incident)
     if incident is not None:
-        return jsonify(incident), 200
+        return jsonify(incident), 210
 
     return jsonify({"erreur": "404 - incident non trouvé"}), 404
 
