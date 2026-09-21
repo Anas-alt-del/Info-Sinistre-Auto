@@ -118,17 +118,18 @@ def update_incident(id_incident, incident):
 
 # Ajouter un id_réclamation à un incident déjà existant
 def update_reclamation(id_incident, id_reclamation):
+    incident_modifie = None
+
     # récupérer le data de la collection
     with open(DB_URI, 'r', encoding='utf-8') as fin:
         data = json.load(fin)
     documents = data.get(DB_COLLECTION, [])
 
     # ajouter le id_reclamation à l'incident correspondant
-    nouveau_id_reclamation = id_reclamation['id_reclamation'][0]
     for doc in documents:
         if doc.get("id_incident") == id_incident:
             dossier = doc["info_dossier"]
-            dossier["id_reclamation"].append(nouveau_id_reclamation)
+            dossier["id_reclamation"].append(id_reclamation[0])
             incident_modifie = doc
             break
 
@@ -190,13 +191,13 @@ def modifier_incident(id_incident):
 
 
 # Ajouter un id_reclamation à un incident existant à la bd
-@app.route('/dao/incidents/<int:id_incident>/reclamation', methods=['PUT'])
+@app.route('/dao/incidents/<int:id_incident>/reclamation', methods=['PATCH'])
 def ajouter_reclamation(id_incident):
     # récupérer le payload
-    jsondata = request.get_json()
+    id_reclamation = request.get_json()
 
     # modifier le document existant dans la db, uniquement pour ajouter un id_reclamation
-    incident = update_reclamation(id_incident, jsondata)
+    incident = update_reclamation(id_incident, id_reclamation)
 
     # retourner le nouveau document avec le code de succès 201
     return jsonify(incident), 201
