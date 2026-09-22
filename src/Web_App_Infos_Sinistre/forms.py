@@ -1,19 +1,27 @@
+from asyncio.windows_events import NULL
+
 from flask_wtf import FlaskForm  # Base class for all Flask forms
-from wtforms import SubmitField, IntegerField, FloatField  # Field types
+from wtforms import (SubmitField, IntegerField, FloatField,
+                     DateField, TimeField, StringField)  # Field types
 from wtforms.validators import DataRequired  # Validation rules
+
 
 class InfosInputForm(FlaskForm):
     """
     Formulaire d'insertion de données:
-    -Date
-    -Heure
-    -Lat
-    -Long
+    -id_reclamation (nullable)
+    -Date (nullable)
+    -Heure (nullable)
+    -Lat (nullable)
+    -Long (nullable)
     -Niveau de zoom (default 15)
     """
+    id_reclamation = StringField("Identifiant de réclamation", default=None)
 
-    lat =   FloatField("Latitude", validators=[DataRequired()])
-    long =  FloatField("Longitude", validators=[DataRequired()])
+    date = DateField("Date", default=None)
+    heure = TimeField("Heure", default=None)
 
-    zoom =  IntegerField("Niveau de zoom", validators=[DataRequired()])
+    lat = FloatField("Latitude", default=None)
+    long = FloatField("Longitude", default=None)
+
     submit = SubmitField("Sauvegarder")

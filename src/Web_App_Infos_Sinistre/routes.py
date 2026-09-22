@@ -13,6 +13,9 @@ from flask import Flask, render_template, flash, redirect
 # flash: Displays temporary messages to users (like "Success!" or "Error!")
 # redirect: Sends users to a different URL after an action (like after form submission)
 
+import requests
+# HTTP framework
+
 # from forms import ProjetForm  # Import the project form we defined
 from config import Config  # Import configuration settings
 from forms import InfosInputForm
@@ -25,17 +28,42 @@ app = Flask(__name__)
 # This loads SECRET_KEY and other configuration values
 app.config.from_object(Config)
 
+URI_SERV_DATA = {
+    'chercher_incident': 'http://127.0.0.1:5010/data',
+    'creer_incident': 'http://127.0.0.1:5010/data',
+    'ajouter_reclamation': 'hhttp://127.0.0.1:5010/data/reclamation'
+}
 
-@app.route('/infos_sinistre', methods=['GET', 'POST'])
+@app.route('/infos_sinistre', methods=['GET'])
 def form_info_sinistre():
     inputForm = InfosInputForm()
     if inputForm.validate_on_submit():
-        # If we reach here, the form data is valid!
+        # A faire: validation des inputs
+        # 1. si id_reclamation est égal à None alors on doit avoir la date, l'heure et les coordonnées
+        # 2. si la date, l'heure et les coordonnées sont égales à None alors on doit avoir id_reclamation
+
         inputs = {
+            "id_reclamation": inputForm.id_reclamation.data,
+            "date": inputForm.date.data,
+            "heure": inputForm.heure.data,
             "lat": inputForm.lat.data,
-            "long": inputForm.long.data,
-            "zoom": inputForm.zoom.data
+            "long": inputForm.long.data
         }
+
+        # envoi de la requête GET à serv_data
+        resultat, code = requests.get(URI_SERV_DATA['chercher_incident'])
+
+        # Si code 200 : retourner l'incident
+        if code == 200:
+            pass
+
+        # Si code 210 : proposer à l'utilisateur d'ajouter le id_reclamation à l'incident trouvé (PATCH)
+        if code == 210:
+            pass
+
+        # Si code 404 : proposer à l'utilisateur de collecter les données (POST)
+        if code == 404:
+            pass
 
         return render_template('infos_output.html', data=inputs)
 
