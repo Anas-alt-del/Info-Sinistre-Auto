@@ -129,7 +129,7 @@ def update_reclamation(id_incident, id_reclamation):
     for doc in documents:
         if doc.get("id_incident") == id_incident:
             dossier = doc["info_dossier"]
-            dossier["id_reclamation"].append(id_reclamation[0])
+            dossier["id_reclamation"].append(id_reclamation["id_reclamation"])
             incident_modifie = doc
             break
 

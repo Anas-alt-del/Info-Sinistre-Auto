@@ -6,7 +6,6 @@ les enregistrer (le cas échéant)
 '''
 from flask import Flask, request
 import requests
-import json
 
 app = Flask(__name__)
 
@@ -40,7 +39,7 @@ def ajouter_reclamation():
     # requête PATCH afin d'ajouter le id à la liste
     confirmation = requests.patch(URI_SERV_DAO['ajouter_reclamation'].format(id_incident),
                                   json={"id_reclamation":id_reclamation}) #la méthode format insère id_incident dans le placeholder {}
-    return (confirmation)
+    return confirmation
 
 @app.route('/data', methods=['POST'])
 def creer_incident():
@@ -48,13 +47,13 @@ def creer_incident():
     correspondant"""
 
     # inputs utilisateur
-    input = request.get_json()
+    payload = request.get_json()  # >>>  j'ai changé le nom 'input' à 'payload', pcq input est une instruction python
 
-    latitude = input["lat"]
-    longitude = input["long"]
-    date = input["date"]
-    heure = input["heure"]
-    id_reclamation = input["id_reclamation"]
+    latitude = payload["lat"]
+    longitude = payload["long"]
+    date = payload["date"]
+    heure = payload["heure"]
+    # id_reclamation = payload["id_reclamation"]  >>> (variable qui n'est pas utilisé)
 
     # Appel au service de collecte de données
     info_meteo = requests.get(URI_SERV_COLLECTE, json={
@@ -66,7 +65,7 @@ def creer_incident():
 
     # Consolidation des données utilisateur et des informations
     # collectées dans un document JSON
-    info_sinistre = {'info_dossier': input,
+    info_sinistre = {'info_dossier': payload,
                      'info_meteo': info_meteo}
 
     # Envoi du document à Service_DAO afin de l'insérer dans la
@@ -74,7 +73,7 @@ def creer_incident():
     requests.post(URI_SERV_DAO['creer_incident'], json=info_sinistre)
 
     # Réponse à la requête entrante avec le document JSON
-    return (info_sinistre)
+    return info_sinistre
 
 
 if __name__ == '__main__':
