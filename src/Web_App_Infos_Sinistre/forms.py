@@ -25,3 +25,12 @@ class InfosInputForm(FlaskForm):
     long = FloatField("Longitude", default=None)
 
     submit = SubmitField("Sauvegarder")
+
+class FormAjoutReclamation(FlaskForm):
+    """
+    Formulaire donnant l'option à l'utilisateur d'ajouter la réclamation
+    """
+    pass
+
+class FormCollecteDonnees(FlaskForm):
+    pass

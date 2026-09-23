@@ -34,6 +34,7 @@ URI_SERV_DATA = {
     'ajouter_reclamation': 'hhttp://127.0.0.1:5010/data/reclamation'
 }
 
+
 @app.route('/infos_sinistre', methods=['GET'])
 def form_info_sinistre():
     inputForm = InfosInputForm()
@@ -55,17 +56,27 @@ def form_info_sinistre():
 
         # Si code 200 : retourner l'incident
         if code == 200:
-            pass
+            return render_template('infos_output.html', data=resultat)
 
         # Si code 210 : proposer à l'utilisateur d'ajouter le id_reclamation à l'incident trouvé (PATCH)
         if code == 210:
-            pass
+            form_ajout_reclamation = FormAjoutReclamation()
+            return render_template('ajout_reclamation.html', form = form_ajout_reclamation, data=resultat)
+            if form_ajout_reclamation.validate_on_submit():
+            # si oui: requete PATCH à serv_data
+            # si non: afficher l'incident
+                return render_template('infos_output.html', data=resultat)
+                pass
 
         # Si code 404 : proposer à l'utilisateur de collecter les données (POST)
         if code == 404:
-            pass
-
-        return render_template('infos_output.html', data=inputs)
+            form_collecte_donnees = FormCollecteDonnees()
+            return render_template('collecte_données.html', form= form_collecte_donnees)
+            if form_collecte_donnees.validate_on_submit():
+                # si oui: requete POST à serv_data
+                # si non: re-charger la route
+                return redirect('/infos_sinistre')
+                pass
 
     return render_template('form_infos_input.html',
                            form=inputForm)
