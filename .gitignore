@@ -13,3 +13,5 @@
 /src/Service_DAO/.idea
 /src/Service_DAO/.venv
 /src/Service_DAO/__pycache__
+
+/src/Service_Auth/*
