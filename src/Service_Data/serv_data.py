@@ -21,8 +21,8 @@ URI_SERV_COLLECTE = 'http://127.0.0.1:5020/collecte_data'
 
 @app.route('/data', methods=['GET'])
 def chercher_incident():
-    # Appel à Service_DAO pour vérifier si un document correspondant
-    # aux données utilisateur existe déjà (GET)
+    """Requête GET à serv_DAO pour vérifier si un document correspondant
+    aux données utilisateur existe déjà (GET)"""
     input = request.get_json()
     recherche, code = requests.get(URI_SERV_DAO['chercher_incident'], json=input)
 
@@ -30,11 +30,13 @@ def chercher_incident():
 
 @app.route('/data/reclamation', methods=['PATCH'])
 def ajouter_reclamation():
+    """Requête PATCH à serv_DAO pour ajouter id_reclamation à l'incident
+    correspondant (si l'incident n'est pas trouvé avec id_reclamation
+    mais qu'il est trouvé avec date/heure/lieu) """
     input = request.get_json()
     id_reclamation = input["id_reclamation"]
     id_incident = input["id_incident"]
 
-    # incident non trouvé avec id_reclamation mais trouvé avec heure/lieu
     # requête PATCH afin d'ajouter le id à la liste
     confirmation = requests.patch(URI_SERV_DAO['ajouter_reclamation'].format(id_incident),
                                   json={"id_reclamation":id_reclamation}) #la méthode format insère id_incident dans le placeholder {}
