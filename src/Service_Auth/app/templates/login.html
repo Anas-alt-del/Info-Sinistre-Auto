@@ -22,7 +22,23 @@
     {% if messages %}
         <ul>
         {% for message in messages %}
-            <li> {{ message }} </li>
+            {% if message.startswith('Token') %}
+                <script>
+                    function copyInputText() {
+                        const input = document.getElementById('tokenInput');
+                        navigator.clipboard.writeText(input.value).then(() => {
+                            alert("Token copied to clipboard!");
+                        });
+                    }
+                </script>
+                <p>
+                    <label for="tokenInput">Token: </label>
+                    <input type="text" id="tokenInput" value="{{ message | replace('Token = ', '') | trim }}" readonly disabled style="width: 50ch; background: gainsboro;">
+                    <button type="button" onclick="copyInputText()" style="margin-left: 5px;">Copier le Token</button>
+                </p>
+            {% else %}
+                <li> {{ message }} </li>
+            {% endif %}
         {% endfor %}
         </ul>
     {% endif %}

@@ -4,24 +4,48 @@ numéro de réclamation) et coordonne Service_DAO et Service_Collecte afin
 de vérifier si un enregistrement existe déjà, collecter les données et
 les enregistrer (le cas échéant)
 '''
-from flask import Flask, request
-import requests
+from flask import Flask, request, jsonify
+import requests, jwt
 
 app = Flask(__name__)
+app.config['SECRET_KEY'] = 'le bonheur est dans le pré'
 
 URI_SERV_DAO = {
     'chercher_incident': 'http://127.0.0.1:5601/dao/incidents',
     'creer_incident': 'http://127.0.0.1:5601/dao/incidents',
     'ajouter_reclamation': 'http://127.0.0.1:5601/dao/incidents/{}/reclamation'
 }
-
 URI_SERV_COLLECTE = 'http://127.0.0.1:5020/collecte_data'
 
+
+# FONCTIONS UTILITAIRES
+
+def recuperer_token_header():
+    auth_header = request.headers.get('Authorization', '')
+    if auth_header.startswith('Bearer '):
+        return auth_header.split(' ')[1]  # retourner uniquement le token
+    return None
+
+def verifier_token(token):
+    try:
+        jwt.decode(token, key=app.config['SECRET_KEY'], algorithms='HS256')
+        return True
+    except jwt.InvalidTokenError:
+        return False
+
+
+# ROUTES
 
 @app.route('/data', methods=['GET'])
 def chercher_incident():
     """Requête GET à serv_DAO pour vérifier si un document correspondant
     aux données utilisateur existe déjà (GET)"""
+
+    # vérifier le token
+    token = recuperer_token_header()
+    if not verifier_token(token):
+        return jsonify({"message": "Erreur 401: Unauthorized. Token non fourni, invalide ou expiré"}), 401
+
     payload = request.get_json()
     response = requests.get(URI_SERV_DAO['chercher_incident'], json=payload)
     resultat = response.json()
@@ -33,6 +57,12 @@ def ajouter_reclamation():
     """Requête PATCH à serv_DAO pour ajouter id_reclamation à l'incident
     correspondant (si l'incident n'est pas trouvé avec id_reclamation
     mais qu'il est trouvé avec date/heure/lieu) """
+
+    # vérifier le token
+    token = recuperer_token_header()
+    if not verifier_token(token):
+        return jsonify({"message": "Erreur 401: Unauthorized. Token non fourni, invalide ou expiré"}), 401
+
     payload = request.get_json()
     id_reclamation = payload["id_reclamation"]
     id_incident = payload["id_incident"]
@@ -46,6 +76,11 @@ def ajouter_reclamation():
 def creer_incident():
     """Appel à Service_Collecte si Service_DAO ne trouve pas un document
     correspondant"""
+
+    # vérifier le token
+    token = recuperer_token_header()
+    if not verifier_token(token):
+        return jsonify({"message": "Erreur 401: Unauthorized. Token non fourni, invalide ou expiré"}), 401
 
     # inputs utilisateur
     payload = request.get_json()

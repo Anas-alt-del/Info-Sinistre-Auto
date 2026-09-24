@@ -9,7 +9,7 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'le bonheur est dans le pré'
 
 #AUTH_DB = 'auth.json'
-DELAI_EXPIRATION_MIN = 1
+DELAI_EXPIRATION_MIN = 1  # >>> 1 minute. on pourra changer plus tard pour 30min
 
 
 # FONCTIONS UTILITAIRES
@@ -38,7 +38,8 @@ def login():
 
     if login_form.validate_on_submit():
         if verifier_login(login_form.username.data, login_form.password.data):
-            flash(f'Authentification réussie. Token = {generer_token()}')
+            flash(f'Authentification réussie.')
+            flash(f'Token = {generer_token()}')
         else:
             flash('Erreur: username ou password invalide')
         return redirect('/login')
