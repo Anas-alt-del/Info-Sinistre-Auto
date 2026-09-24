@@ -44,7 +44,7 @@ def select_id_reclamation(info_dossier):
     documents = data.get(DB_COLLECTION, [])
 
     # collecter les inputs du nouveau document
-    u_id_reclamation = info_dossier.get("id_reclamation")[0]
+    u_id_reclamation = info_dossier.get("id_reclamation")
 
     # trouver le id_reclamation dans la bd
     for doc in documents:
@@ -58,6 +58,7 @@ def select_id_reclamation(info_dossier):
 
 # Chercher un incident à partir des champs date + heure + latitude + longitude
 def select_incident(info_dossier):
+
     # récupérer le data de la base de données
     with open(DB_URI, 'r', encoding='utf-8') as fin:
         data = json.load(fin)
@@ -96,6 +97,8 @@ def insert_incident(nouvel_incident):
     # commit le changement à la collection
     with open(DB_URI, 'w', encoding='utf-8') as fout:
         json.dump(data, fout, indent=4)
+
+    return(nouvel_incident)
 
 
 # Modifier un incident déjà existant de la bd
@@ -157,7 +160,6 @@ def chercher_incident():
 
     # si l'incident existe déjà, retourner l'incident correspondant
     incident = select_incident(info_dossier)
-    print(incident)
     if incident is not None:
         return jsonify(incident), 210
 
@@ -172,9 +174,9 @@ def creer_incident():
 
     # insérer le nouveau document dans la db
     #       (le #id est auto-généré et assigné)
-    insert_incident(jsondata)
+    nouvel_incident = insert_incident(jsondata)
     # retourner le nouveau document avec le code de succès 201
-    return jsonify(jsondata), 201
+    return jsonify(nouvel_incident), 201
 
 
 # Modifier un incident existant à la bd

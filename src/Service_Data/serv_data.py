@@ -22,19 +22,20 @@ URI_SERV_COLLECTE = 'http://127.0.0.1:5020/collecte_data'
 def chercher_incident():
     """Requête GET à serv_DAO pour vérifier si un document correspondant
     aux données utilisateur existe déjà (GET)"""
-    input = request.get_json()
-    recherche, code = requests.get(URI_SERV_DAO['chercher_incident'], json=input)
-
-    return recherche, code
+    payload = request.get_json()
+    response = requests.get(URI_SERV_DAO['chercher_incident'], json=payload)
+    resultat = response.json()
+    code = response.status_code
+    return resultat, code
 
 @app.route('/data/reclamation', methods=['PATCH'])
 def ajouter_reclamation():
     """Requête PATCH à serv_DAO pour ajouter id_reclamation à l'incident
     correspondant (si l'incident n'est pas trouvé avec id_reclamation
     mais qu'il est trouvé avec date/heure/lieu) """
-    input = request.get_json()
-    id_reclamation = input["id_reclamation"]
-    id_incident = input["id_incident"]
+    payload = request.get_json()
+    id_reclamation = payload["id_reclamation"]
+    id_incident = payload["id_incident"]
 
     # requête PATCH afin d'ajouter le id à la liste
     confirmation = requests.patch(URI_SERV_DAO['ajouter_reclamation'].format(id_incident),
@@ -47,13 +48,11 @@ def creer_incident():
     correspondant"""
 
     # inputs utilisateur
-    payload = request.get_json()  # >>>  j'ai changé le nom 'input' à 'payload', pcq input est une instruction python
-
+    payload = request.get_json()
     latitude = payload["lat"]
     longitude = payload["long"]
     date = payload["date"]
     heure = payload["heure"]
-    # id_reclamation = payload["id_reclamation"]  >>> (variable qui n'est pas utilisé)
 
     # Appel au service de collecte de données
     info_meteo = requests.get(URI_SERV_COLLECTE, json={
