@@ -1,15 +1,17 @@
-
 {% block content %}
-  <h2>Our Location</h2>
+<h2>Our Location</h2>
+<pre>{{ data | tojson(indent=2) }}</pre>
 
-  <!-- Standard Google Maps Embed -->
-  <iframe 
-  width="600" 
-  height="450" 
-  style="border:0" 
-  loading="lazy" 
-  allowfullscreen 
-{% block URI %}  src="https://maps.google.com/maps?q={{data.lat}},{{data.long}}&z=15&output=embed">{% endblock %}
+<!-- Standard Google Maps Embed -->
+<iframe
+        width="600"
+        height="450"
+        style="border:0"
+        loading="lazy"
+        allowfullscreen
+        {% block URI %}
+        src="https://maps.google.com/maps?q={{data.info_dossier.latitude}},{{data.info_dossier.longitude}}&z=15&output=embed">
+    {% endblock %}
 </iframe>
 {% endblock %}
 
