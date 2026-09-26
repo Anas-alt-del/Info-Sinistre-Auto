@@ -17,7 +17,6 @@ from flask import Flask, render_template, flash, redirect
 import requests
 # HTTP framework
 
-# from forms import ProjetForm  # Import the project form we defined
 from config import Config  # Import configuration settings
 from forms import InfosInputForm,FormAjoutReclamation,FormCollecteDonnees
 
