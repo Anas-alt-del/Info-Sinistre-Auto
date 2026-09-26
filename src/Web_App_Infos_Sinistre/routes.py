@@ -20,7 +20,7 @@ import requests
 # HTTP framework
 
 from config import Config, URI_AUTH_SERVICE, URI_SERV_DATA  # Import configuration settings
-from forms import InfosInputForm,FormAjoutReclamation,FormCollecteDonnees
+from forms import InfosInputForm, FormAjoutReclamation, FormCollecteDonnees
 from util import validate_search_inputs, build_search_payload
 
 # Create the Flask application object
@@ -30,6 +30,16 @@ app = Flask(__name__)
 # Tell Flask to use our Config class for settings
 # This loads SECRET_KEY and other configuration values
 app.config.from_object(Config)
+
+# Décorateur pour vérifier que l'utilisateur possède un token valide
+def token_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if 'auth_token' not in session:
+            flash('Veuillez d\'abord vous connecter.', 'warning')
+            return redirect('/login')
+        return f(*args, **kwargs)
+    return decorated_function
 
 @app.route('/', methods=['GET'])
 @app.route('/index', methods=['GET'])
@@ -81,71 +91,69 @@ def login():
 
     return render_template('login.html')
 
-@app.route('/infos_sinistre', methods=['GET','POST'])
+
+@app.route('/infos_sinistre', methods=['GET', 'POST'])
+@token_required
 def form_info_sinistre():
+    """Route de recherche d'incident - affiche le formulaire de recherche"""
     inputForm = InfosInputForm()
     if inputForm.validate_on_submit():
-        # A faire: validation des inputs
-        # 1. si id_reclamation est égal à None alors on doit avoir la date, l'heure et les coordonnées
-        # 2. si la date, l'heure et les coordonnées sont égales à None alors on doit avoir id_reclamation
 
-        if inputForm.date.data:
-            date = inputForm.date.data.strftime("%Y-%m-%d")
-        else:
-            date =  None
+        # Validation des inputs selon les règles métier
+        if not validate_search_inputs(inputForm):
+            flash('Vous devez fournir soit un ID de réclamation, soit (date + heure + coordonnées).', 'danger')
+            return render_template('form_infos_input.html', form=inputForm)
 
-        if inputForm.heure.data:
-            heure = inputForm.heure.data.strftime("%H:%M")
-        else:
-            heure =  None
+        # Préparation du payload
+        payload = build_search_payload(inputForm)
 
-        payload = {
-            "id_reclamation": inputForm.id_reclamation.data,
-            "date": date,
-            "heure": heure,
-            "latitude": inputForm.lat.data,
-            "longitude": inputForm.long.data
-        }
-        print(payload)
-        # envoi de la requête GET à serv_data
-        response= requests.get(URI_SERV_DATA['chercher_incident'], json = payload)
-        resultat = response.json()
-        print(resultat)
-        code= response.status_code
-        print(code)
-        # Si code 200 : retourner l'incident
-        if code == 200:
-            return render_template('infos_output.html', data=resultat), code
+        # Stockage temporaire des données de recherche en session
+        session['search_payload'] = payload
 
-        # Si code 210 : proposer à l'utilisateur d'ajouter le id_reclamation à l'incident trouvé (PATCH)
-        if code == 210:
-            form_ajout_reclamation = FormAjoutReclamation()
-            # Afficher le formulaire proposant d'ajouter le id_réclamation à l'incident
+        try:
+            # Envoi de la requête GET à serv_data avec le token
+            headers = {'Authorization': f'Bearer {session.get("auth_token")}'}
+            response = requests.get(
+                URI_SERV_DATA['chercher_incident'],
+                json=payload,
+                headers=headers,
+                timeout=5
+            )
 
-            if form_ajout_reclamation.validate_on_submit():
-                # option sélectionnée dans le formulaire
-                option = form_ajout_reclamation.options.data
-                if option == 'Ajouter':
-                    # si oui: requete PATCH à serv_data
-                    payload.update({"id_incident": resultat["id_incident"]})
-                    requests.patch(URI_SERV_DATA['ajouter_reclamation'], json=payload)
-                # Dans tous les cas: afficher l'incident à la fin
-                return render_template('infos_output.html', data=resultat)
+            # Gestion des codes de réponse
+            if response.status_code == 200:
+                # Incident trouvé et complet
+                resultat = response.json()
+                session['incident_data'] = resultat
+                return redirect('/afficher_resultat')
+
+            elif response.status_code == 210:
+                # Incident trouvé mais ID réclamation manquant
+                resultat = response.json()
+                session['incident_data'] = resultat
+                return redirect('/ajouter_reclamation')
+
+            elif response.status_code == 404:
+                # Incident non trouvé - proposer la création
+                return redirect('/collecter_donnees')
+
             else:
-                # Afficher le formulaire si pas encore soumis
-                return render_template('form_ajout_reclamation.html', form=form_ajout_reclamation), code
+                flash(f'Erreur serveur (code {response.status_code}).', 'danger')
+
+        except requests.exceptions.RequestException as e:
+            flash(f'Erreur de connexion à serv_data: {str(e)}', 'danger')
+
+    return render_template('form_infos_input.html', form=inputForm)
 
 
+@app.route('/afficher_resultat', methods=['GET'])
+@token_required
+def afficher_resultat():
+    """Route pour afficher les résultats d'une recherche/création"""
+    incident_data = session.get('incident_data')
 
-        # # Si code 404 : proposer à l'utilisateur de collecter les données (POST)
-        # if code == 404:
-        #     form_collecte_donnees = FormCollecteDonnees()
-        #     return render_template('collecte_données.html', form= form_collecte_donnees)
-        #     if form_collecte_donnees.validate_on_submit():
-        #         # si oui: requete POST à serv_data
-        #         # si non: re-charger la route
-        #         return redirect('/infos_sinistre')
-        #         pass
+    if not incident_data:
+        flash('Aucune donnée à afficher. Veuillez rechercher à nouveau.', 'warning')
+        return redirect('/infos_sinistre')
 
-    return render_template('form_infos_input.html',
-                    form=inputForm)
+    return render_template('infos_output.html', data=incident_data)
