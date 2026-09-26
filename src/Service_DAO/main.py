@@ -4,17 +4,28 @@
 
 from flask import Flask, jsonify, request
 import json, os
+from pymongo import MongoClient
 
 app = Flask(__name__)
-DB_URI = 'db_incidents.json'
+
+JSONDB_URI = 'db_incidents.json'
+MONGODB_URI = 'mongodb+srv://flouflou:motdepasse@cluster0.u62olan.mongodb.net/?appName=Cluster0' # database: 'info_sinistre_auto'
 DB_COLLECTION = 'incidents'
 
 
+# Initialisation de la base de données
+#    initialiser_db_JSON()
+mongoClient = MongoClient(MONGODB_URI)
+mongodb = mongoClient.info_sinistre_auto[DB_COLLECTION]
 
-##### FONCTIONS UTILITAIRES
+
+
+######################################################################################
+##### DB = FICHIER JSON ##############################################################
+
 
 # Récupérer le prochain id_incident à utiliser dans la bd
-def get_next_id(documents):
+def get_next_id_JSON(documents):
     # chercher dans les données pour le dernier id_incident et ajouter 1
     # s'il n'y a aucun document enregistré, retourner 0
     id_list = [doc.get("id_incident") for doc in documents if doc.get("id_incident") is not None]
@@ -22,24 +33,20 @@ def get_next_id(documents):
     return next_id
 
 
-
-##### FONCTIONS PRINCIPALES
-
-
 # Initialisation de la base de données
-def initialiser_db():
-    # si la db n'existe pas, la créer
-    if not os.path.exists(DB_URI) or os.path.getsize(DB_URI) == 0:
+def initialiser_db_JSON():
+    if not os.path.exists(JSONDB_URI) or os.path.getsize(JSONDB_URI) == 0:
+        # si la db n'existe pas, la créer
         data = { DB_COLLECTION: [] }
-        with open(DB_URI, 'w', encoding='utf-8') as fout:
+        with open(JSONDB_URI, 'w', encoding='utf-8') as fout:
             json.dump(data, fout, indent=4)
     print("- Base de données initialisée")
 
 
 # Chercher un incident à partir du id_reclamation
-def select_id_reclamation(info_dossier):
+def select_id_reclamation_JSON(info_dossier):
     # récupérer le data de la collection
-    with open(DB_URI, 'r', encoding='utf-8') as fin:
+    with open(JSONDB_URI, 'r', encoding='utf-8') as fin:
         data = json.load(fin)
     documents = data.get(DB_COLLECTION, [])
 
@@ -57,10 +64,10 @@ def select_id_reclamation(info_dossier):
 
 
 # Chercher un incident à partir des champs date + heure + latitude + longitude
-def select_incident(info_dossier):
+def select_incident_JSON(info_dossier):
 
     # récupérer le data de la base de données
-    with open(DB_URI, 'r', encoding='utf-8') as fin:
+    with open(JSONDB_URI, 'r', encoding='utf-8') as fin:
         data = json.load(fin)
     documents = data.get(DB_COLLECTION, [])
 
@@ -81,30 +88,30 @@ def select_incident(info_dossier):
 
 
 # Insérer un nouvel incident à la bd
-def insert_incident(nouvel_incident):
+def insert_incident_JSON(nouvel_incident):
     # récupérer le data de la collection
-    with open(DB_URI, 'r', encoding='utf-8') as fin:
+    with open(JSONDB_URI, 'r', encoding='utf-8') as fin:
         data = json.load(fin)
     documents = data.get(DB_COLLECTION, [])
 
     # trouver le prochain id
-    next_id = get_next_id(documents)
+    next_id = get_next_id_JSON(documents)
     nouvel_incident['id_incident'] = next_id
 
     # ajouter le nouveau document dans la collection
     documents.append(nouvel_incident)
 
     # commit le changement à la collection
-    with open(DB_URI, 'w', encoding='utf-8') as fout:
+    with open(JSONDB_URI, 'w', encoding='utf-8') as fout:
         json.dump(data, fout, indent=4)
 
-    return(nouvel_incident)
+    return nouvel_incident
 
 
 # Modifier un incident déjà existant de la bd
-def update_incident(id_incident, incident):
+def update_incident_JSON(id_incident, incident):
     # récupérer le data de la collection
-    with open(DB_URI, 'r', encoding='utf-8') as fin:
+    with open(JSONDB_URI, 'r', encoding='utf-8') as fin:
         data = json.load(fin)
     documents = data.get(DB_COLLECTION, [])
 
@@ -115,16 +122,16 @@ def update_incident(id_incident, incident):
     documents.append(incident)
 
     # commit le changement à la collection
-    with open(DB_URI, 'w', encoding='utf-8') as fout:
+    with open(JSONDB_URI, 'w', encoding='utf-8') as fout:
         json.dump(data, fout, indent=4)
 
 
 # Ajouter un id_réclamation à un incident déjà existant
-def update_reclamation(id_incident, id_reclamation):
+def update_reclamation_JSON(id_incident, id_reclamation):
     incident_modifie = None
 
     # récupérer le data de la collection
-    with open(DB_URI, 'r', encoding='utf-8') as fin:
+    with open(JSONDB_URI, 'r', encoding='utf-8') as fin:
         data = json.load(fin)
     documents = data.get(DB_COLLECTION, [])
 
@@ -137,14 +144,97 @@ def update_reclamation(id_incident, id_reclamation):
             break
 
     # commit le changement à la collection
-    with open(DB_URI, 'w', encoding='utf-8') as fout:
+    with open(JSONDB_URI, 'w', encoding='utf-8') as fout:
         json.dump(data, fout, indent=4)
 
     return incident_modifie
 
 
 
-##### ROUTES
+######################################################################################
+##### DB = MONGO DB ##################################################################
+
+
+# Récupérer le prochain id_incident à utiliser dans la bd
+def get_next_id_MONGODB():
+    # récupérer la liste des "id_incident", et la convertir en liste python
+    documents = list(mongodb.find({}, {"id_incident": 1, "_id": 0}))
+    id_list = [doc["id_incident"] for doc in documents if "id_incident" in doc] or None
+
+    # chercher dans les données pour le dernier id_incident et ajouter 1
+    # s'il n'y a aucun document enregistré, retourner 0
+    next_id = max(id_list) + 1 if id_list else 0
+    return next_id
+
+
+# Chercher un incident à partir du id_reclamation
+def select_id_reclamation_MONGODB(info_dossier):
+    # collecter le id_reclamation recherché
+    u_id_reclamation = info_dossier.get("id_reclamation")
+
+    # récupérer la liste des incidents, et la convertir en liste python
+    documents = list(mongodb.find({}, {"_id": 0}))
+
+    # trouver le id_reclamation dans la bd
+    for doc in documents:
+        doc_id_reclamation = doc.get("info_dossier").get("id_reclamation")
+        if u_id_reclamation in doc_id_reclamation:
+            return doc
+
+    # id_reclamation non trouvé
+    return None
+
+
+# Chercher un incident à partir des 4 champs date + heure + latitude + longitude
+def select_incident_MONGODB(info_dossier):
+    # trouver l'incident dans la bd seulement en fonction des 4 champs
+    query = {
+        "info_dossier.date": info_dossier["date"],
+        "info_dossier.heure": info_dossier["heure"],
+        "info_dossier.latitude": info_dossier["latitude"],
+        "info_dossier.longitude": info_dossier["longitude"]
+    }
+    doc = mongodb.find_one(query, {"_id": 0})
+
+    # retourner le document trouvé ou None s'il n'existe pas
+    return doc if doc else None
+
+
+def insert_incident_MONGODB(nouvel_incident):
+    # trouver le prochain id
+    next_id = get_next_id_MONGODB()
+    nouvel_incident['id_incident'] = next_id
+
+    # ajouter le nouveau document dans la collection
+    mongodb.insert_one(nouvel_incident)
+    nouvel_incident.pop('_id', None)  # retirer le champ "_id" de mongoDB
+
+    # retourner le nouvel incident
+    return nouvel_incident
+
+
+# Modifier un incident déjà existant de la bd
+def update_incident_MONGODB(id_incident, incident):
+    # remplacer le document initial dans la collection avec le document modifié
+    resultat = mongodb.replace_one({"id_incident": id_incident}, incident)
+
+    # retourner le document modifié
+    return incident
+
+
+def update_reclamation_MONGODB(id_incident, id_reclamation):
+    update_data = {"$push": {"info_dossier.id_reclamation": id_reclamation["id_reclamation"]}}
+    resultat = mongodb.update_one({"id_incident": id_incident}, update_data)
+
+    if resultat.modified_count == 1:
+        return select_id_reclamation_MONGODB(id_reclamation)
+
+    return None
+
+
+
+######################################################################################
+##### ROUTES #########################################################################
 
 
 # Chercher un incident à partir des infos "info_dossier"
@@ -154,16 +244,16 @@ def chercher_incident():
     info_dossier = request.get_json()
 
     # si le id_réclamation fourni existe déjà, retourner l'incident correspondant
-    incident = select_id_reclamation(info_dossier)
+    incident = select_id_reclamation_MONGODB(info_dossier)
     if incident is not None:
         return jsonify(incident), 200
 
     # si l'incident existe déjà, retourner l'incident correspondant
-    incident = select_incident(info_dossier)
+    incident = select_incident_MONGODB(info_dossier)
     if incident is not None:
         return jsonify(incident), 210
 
-    return jsonify({"erreur": "404 - incident non trouvé"}), 404
+    return jsonify({"erreur": "404 - Document non trouvé"}), 404
 
 
 # Ajouter un incident à la bd
@@ -172,9 +262,9 @@ def creer_incident():
     # récupérer le payload
     jsondata = request.get_json()
 
-    # insérer le nouveau document dans la db
-    #       (le #id est auto-généré et assigné)
-    nouvel_incident = insert_incident(jsondata)
+    # insérer le nouveau document dans la collection (#id auto-généré)
+    nouvel_incident = insert_incident_MONGODB(jsondata)
+
     # retourner le nouveau document avec le code de succès 201
     return jsonify(nouvel_incident), 201
 
@@ -186,7 +276,7 @@ def modifier_incident(id_incident):
     jsondata = request.get_json()
 
     # modifier le document existant dans la db
-    update_incident(id_incident, jsondata)
+    update_incident_JSON(id_incident, jsondata)
 
     # retourner le nouveau document avec le code de succès 201
     return jsonify(jsondata), 201
@@ -199,7 +289,7 @@ def ajouter_reclamation(id_incident):
     id_reclamation = request.get_json()
 
     # modifier le document existant dans la db, uniquement pour ajouter un id_reclamation
-    incident = update_reclamation(id_incident, id_reclamation)
+    incident = update_reclamation_MONGODB(id_incident, id_reclamation)
 
     # retourner le nouveau document avec le code de succès 201
     return jsonify(incident), 201
@@ -207,5 +297,4 @@ def ajouter_reclamation(id_incident):
 
 
 if __name__ == '__main__':
-    initialiser_db()
     app.run(debug=True, port=5601)
