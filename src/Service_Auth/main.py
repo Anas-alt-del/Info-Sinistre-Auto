@@ -24,11 +24,6 @@ def generer_token():
 
 # ROUTES
 
-@app.get('/')
-@app.get('/index')
-def index():
-    return redirect('/auth/login')
-
 @app.route('/auth/login', methods=['POST'])
 def login():
     # récupérer le payload username + password

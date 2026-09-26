@@ -8,6 +8,13 @@ your main code is a best practice!
 
 import os
 
+URI_SERV_DATA = {
+    'chercher_incident': 'http://127.0.0.1:5010/data',
+    'creer_incident': 'http://127.0.0.1:5010/data',
+    'ajouter_reclamation': 'hhttp://127.0.0.1:5010/data/reclamation'
+}
+
+URI_AUTH_SERVICE = 'http://127.0.0.1:5602/auth/login'
 
 class Config(object):
     """

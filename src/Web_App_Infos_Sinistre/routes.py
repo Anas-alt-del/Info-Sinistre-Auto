@@ -8,17 +8,20 @@ Routes are like "addresses" for your web application!
 """
 import json
 
-from flask import Flask, render_template, flash, redirect
+from flask import Flask, render_template, flash, redirect, session, request
 # Flask: The main framework
 # render_template: Converts HTML template files into complete web pages
 # flash: Displays temporary messages to users (like "Success!" or "Error!")
 # redirect: Sends users to a different URL after an action (like after form submission)
 
+from datetime import datetime, timedelta
+
 import requests
 # HTTP framework
 
-from config import Config  # Import configuration settings
+from config import Config, URI_AUTH_SERVICE, URI_SERV_DATA  # Import configuration settings
 from forms import InfosInputForm,FormAjoutReclamation,FormCollecteDonnees
+from util import validate_search_inputs, build_search_payload
 
 # Create the Flask application object
 # This object represents your entire web application
@@ -28,12 +31,55 @@ app = Flask(__name__)
 # This loads SECRET_KEY and other configuration values
 app.config.from_object(Config)
 
-URI_SERV_DATA = {
-    'chercher_incident': 'http://127.0.0.1:5010/data',
-    'creer_incident': 'http://127.0.0.1:5010/data',
-    'ajouter_reclamation': 'hhttp://127.0.0.1:5010/data/reclamation'
-}
+@app.route('/', methods=['GET'])
+@app.route('/index', methods=['GET'])
+def index():
+    """Route d'accueil - affiche les options de login ou recherche"""
+    return render_template('index.html')
 
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """Route de connexion - envoie les identifiants au service d'auth"""
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+
+        # Validation basique
+        if not username or not password:
+            flash('Nom d\'utilisateur et mot de passe requis.', 'danger')
+            return redirect('/login')
+
+        try:
+            # Envoi des identifiants au service d'authentification
+            auth_payload = {
+                'username': username,
+                'password': password
+            }
+            auth_response = requests.post(URI_AUTH_SERVICE, json=auth_payload)
+
+            if auth_response.status_code == 200:
+                auth_data = auth_response.json()
+                token = auth_data.get('token')
+
+                if token:
+                    # Stockage du token en session
+                    session['auth_token'] = token
+                    session['username'] = username
+                    session.permanent = True
+                    app.permanent_session_lifetime = timedelta(hours=24)
+
+                    flash(f'Bienvenue {username}!', 'success')
+                    return redirect('/infos_sinistre')
+                else:
+                    flash('Identifiants invalides.', 'danger')
+
+        except requests.exceptions.RequestException as e:
+            flash(f'Erreur de connexion au service d\'authentification: {str(e)}', 'danger')
+
+        return redirect('/login')
+
+    return render_template('login.html')
 
 @app.route('/infos_sinistre', methods=['GET','POST'])
 def form_info_sinistre():
