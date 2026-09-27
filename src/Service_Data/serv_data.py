@@ -69,8 +69,8 @@ def ajouter_reclamation():
 
     # requête PATCH afin d'ajouter le id à la liste
     confirmation = requests.patch(URI_SERV_DAO['ajouter_reclamation'].format(id_incident),
-                                  json={"id_reclamation":id_reclamation}) #la méthode format insère id_incident dans le placeholder {}
-    return confirmation
+                                  json={"id_reclamation":id_reclamation}).json() #la méthode format insère id_incident dans le placeholder {}
+    return confirmation, 200
 
 @app.route('/data/creer', methods=['POST'])
 def creer_incident():

@@ -199,6 +199,7 @@ def ajouter_reclamation():
                 # Gestion des codes de réponse
                 if patch_response.status_code == 200:
                     flash('ID réclamation ajouté avec succès.', 'success')
+                    session['incident_data'] = patch_response.json()
                 else:
                     flash(f'Erreur lors de l\'ajout (code {patch_response.status_code}).', 'danger')
 

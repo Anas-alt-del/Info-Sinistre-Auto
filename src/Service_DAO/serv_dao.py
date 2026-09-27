@@ -292,7 +292,7 @@ def ajouter_reclamation(id_incident):
     incident = update_reclamation_MONGODB(id_incident, id_reclamation)
 
     # retourner le nouveau document avec le code de succès 201
-    return jsonify(incident), 201
+    return incident, 201
 
 
 if __name__ == '__main__':

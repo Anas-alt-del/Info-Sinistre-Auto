@@ -40,7 +40,6 @@ def collecte_data():
                       'timezone=auto')
 
     data_meteo = requests.get(URI_SERV_METEO).json()
-    print(json.dumps(data_meteo, indent=4))
 
     # Transformations
     # a. Ne conserver que les 24h précédant le sinistre pour l'analyse
@@ -60,7 +59,6 @@ def collecte_data():
     temp_max = max(temp)
     pluie_24h = sum(pluie)
     neige_24h = sum(neige)
-    print(temp_min, temp_max, pluie_24h, neige_24h)
 
     ## Zone de dégel
     # Chargement du fichier geoJSON
