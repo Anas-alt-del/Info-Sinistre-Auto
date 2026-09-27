@@ -32,6 +32,7 @@ def build_search_payload(form):
         "longitude": form.long.data
     }
 
-    # Nettoyer les None du payload
-    return {k: v for k, v in payload.items() if v is not None}
-
+    return payload
+    # # Nettoyer les None du payload
+    # return {k: v for k, v in payload.items() if v is not None}
+    #

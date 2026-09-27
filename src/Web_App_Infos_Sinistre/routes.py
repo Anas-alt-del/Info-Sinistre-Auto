@@ -226,7 +226,7 @@ def collecter_donnees():
     if form.validate_on_submit():
         option = form.options.data
 
-        if option == 'Oui':
+        if option == 'Oui' and None not in search_payload.values():
             try:
                 # Envoi de la requête POST pour créer l'incident
                 headers = {'Authorization': f'Bearer {session.get("auth_token")}'}
@@ -247,6 +247,10 @@ def collecter_donnees():
             except requests.exceptions.RequestException as e:
                 flash(f'Erreur de connexion: {str(e)}', 'danger')
 
+        elif None in search_payload.values():
+            # Valeurs manquantes dans le formulaire de recherche
+            flash('Valeurs manquantes dans le formulaire de recherche.', 'info')
+            return redirect('/infos_sinistre')
         else:
             # L'utilisateur a choisi "Non"
             flash('Opération annulée.', 'info')
