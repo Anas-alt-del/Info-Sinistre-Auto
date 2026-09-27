@@ -1,3 +1,5 @@
+{% extends "base.html" %}
+
 {% block content %}
 
 
@@ -16,9 +18,8 @@
         {{ form.options }}<br>
     </p>
 
-    {# SUBMIT BUTTON #}
     <p>
-        {# Render the submit button: "Sauvegarder" (Save) #}
+        {# SUBMIT BUTTON #}
         {{ form.submit() }}
     </p>
 

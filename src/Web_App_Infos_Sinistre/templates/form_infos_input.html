@@ -1,3 +1,5 @@
+{% extends "base.html" %}
+
 {% block content %}
 <h1>Saisie des informations du sinistre</h1>
 
@@ -14,35 +16,35 @@
         {# Render the label: "Identifiant de réclamation" #}
         {{ form.id_reclamation.label }}<br>
         {# Render the input field with width of 15 characters #}
-        {{ form.id_reclamation(size=15) }}
+        {{ form.id_reclamation(size=15, required=False) }}
     </p>
 
     <p>
         {# Render the label: "Date" #}
         {{ form.date.label }}<br>
         {# Render the input field with width of 10 characters #}
-        {{ form.date(size=10) }}
+        {{ form.date(size=10, required=False) }}
     </p>
 
     <p>
         {# Render the label: "Heure" #}
         {{ form.heure.label }}<br>
         {# Render the input field with width of 10 characters #}
-        {{ form.heure(size=10) }}
+        {{ form.heure(size=10, required=False) }}
     </p>
 
     <p>
         {# Render the label: "Latitude" #}
         {{ form.lat.label }}<br>
         {# Render the input field with width of 15 characters #}
-        {{ form.lat(size=15) }}
+        {{ form.lat(size=15, required=False) }}
     </p>
 
     <p>
         {# Render the label: "Longitude" #}
         {{ form.long.label }}<br>
         {# Render the input field with width of 15 characters #}
-        {{ form.long(size=15) }}
+        {{ form.long(size=15, required=False) }}
     </p>
 
     {# SUBMIT BUTTON #}

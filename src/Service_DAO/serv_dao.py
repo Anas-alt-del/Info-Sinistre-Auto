@@ -266,20 +266,20 @@ def creer_incident():
     nouvel_incident = insert_incident_MONGODB(jsondata)
 
     # retourner le nouveau document avec le code de succès 201
-    return jsonify(nouvel_incident), 201
+    return nouvel_incident, 201
 
 
-# Modifier un incident existant à la bd
-@app.route('/dao/incidents/<int:id_incident>', methods=['PUT'])
-def modifier_incident(id_incident):
-    # récupérer le payload
-    jsondata = request.get_json()
-
-    # modifier le document existant dans la db
-    update_incident_JSON(id_incident, jsondata)
-
-    # retourner le nouveau document avec le code de succès 201
-    return jsonify(jsondata), 201
+# # Modifier un incident existant à la bd
+# @app.route('/dao/incidents/<int:id_incident>', methods=['PUT'])
+# def modifier_incident(id_incident):
+#     # récupérer le payload
+#     jsondata = request.get_json()
+#
+#     # modifier le document existant dans la db
+#     update_incident_JSON(id_incident, jsondata)
+#
+#     # retourner le nouveau document avec le code de succès 201
+#     return jsonify(jsondata), 201
 
 
 # Ajouter un id_reclamation à un incident existant à la bd
@@ -293,7 +293,6 @@ def ajouter_reclamation(id_incident):
 
     # retourner le nouveau document avec le code de succès 201
     return jsonify(incident), 201
-
 
 
 if __name__ == '__main__':

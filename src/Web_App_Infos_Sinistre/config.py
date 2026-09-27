@@ -10,7 +10,7 @@ import os
 
 URI_SERV_DATA = {
     'chercher_incident': 'http://127.0.0.1:5010/data',
-    'creer_incident': 'http://127.0.0.1:5010/data',
+    'creer_incident': 'http://127.0.0.1:5010/data/creer',
     'ajouter_reclamation': 'hhttp://127.0.0.1:5010/data/reclamation'
 }
 

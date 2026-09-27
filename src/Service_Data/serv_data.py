@@ -72,7 +72,7 @@ def ajouter_reclamation():
                                   json={"id_reclamation":id_reclamation}) #la méthode format insère id_incident dans le placeholder {}
     return confirmation
 
-@app.route('/data', methods=['POST'])
+@app.route('/data/creer', methods=['POST'])
 def creer_incident():
     """Appel à Service_Collecte si Service_DAO ne trouve pas un document
     correspondant"""
@@ -84,8 +84,8 @@ def creer_incident():
 
     # inputs utilisateur
     payload = request.get_json()
-    latitude = payload["lat"]
-    longitude = payload["long"]
+    latitude = payload["latitude"]
+    longitude = payload["longitude"]
     date = payload["date"]
     heure = payload["heure"]
 
@@ -104,10 +104,10 @@ def creer_incident():
 
     # Envoi du document à Service_DAO afin de l'insérer dans la
     # collection (POST)
-    requests.post(URI_SERV_DAO['creer_incident'], json=info_sinistre)
+    nouvel_incident = requests.post(URI_SERV_DAO['creer_incident'], json=info_sinistre).json()
 
     # Réponse à la requête entrante avec le document JSON
-    return info_sinistre
+    return nouvel_incident, 201
 
 
 if __name__ == '__main__':

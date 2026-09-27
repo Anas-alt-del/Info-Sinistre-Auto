@@ -3,7 +3,7 @@ from asyncio.windows_events import NULL
 from flask_wtf import FlaskForm  # Base class for all Flask forms
 from wtforms import (SubmitField, IntegerField, FloatField, RadioField,
                      DateField, TimeField, StringField)  # Field types
-from wtforms.validators import DataRequired  # Validation rules
+from wtforms.validators import Optional  # Validation rules
 
 
 class InfosInputForm(FlaskForm):
@@ -16,11 +16,11 @@ class InfosInputForm(FlaskForm):
     -Long (nullable)
     -Niveau de zoom (default 15)
     """
-    id_reclamation = StringField("Identifiant de réclamation")
-    date = DateField("Date")
-    heure = TimeField("Heure")
-    lat = FloatField("Latitude")
-    long = FloatField("Longitude")
+    id_reclamation = StringField("Identifiant de réclamation", validators=[Optional()])
+    date = DateField("Date", validators=[Optional()])
+    heure = TimeField("Heure", validators=[Optional()])
+    lat = FloatField("Latitude", validators=[Optional()])
+    long = FloatField("Longitude", validators=[Optional()])
 
     submit = SubmitField("Sauvegarder")
 
@@ -33,4 +33,8 @@ class FormAjoutReclamation(FlaskForm):
 
 
 class FormCollecteDonnees(FlaskForm):
-    pass
+    """
+    Formulaire donnant l'option à l'utilisateur de collecter les informations
+    """
+    options = RadioField('Choose an option:', choices=[('Oui', 'Oui'), ('Non', 'Non')])
+    submit = SubmitField("Sauvegarder")

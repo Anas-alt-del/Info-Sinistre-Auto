@@ -15,6 +15,7 @@ from flask import Flask, render_template, flash, redirect, session, request
 # redirect: Sends users to a different URL after an action (like after form submission)
 
 from datetime import datetime, timedelta
+from functools import wraps
 
 import requests
 # HTTP framework
@@ -31,6 +32,7 @@ app = Flask(__name__)
 # This loads SECRET_KEY and other configuration values
 app.config.from_object(Config)
 
+
 # Décorateur pour vérifier que l'utilisateur possède un token valide
 def token_required(f):
     @wraps(f)
@@ -39,7 +41,9 @@ def token_required(f):
             flash('Veuillez d\'abord vous connecter.', 'warning')
             return redirect('/login')
         return f(*args, **kwargs)
+
     return decorated_function
+
 
 @app.route('/', methods=['GET'])
 @app.route('/index', methods=['GET'])
@@ -98,7 +102,6 @@ def form_info_sinistre():
     """Route de recherche d'incident - affiche le formulaire de recherche"""
     inputForm = InfosInputForm()
     if inputForm.validate_on_submit():
-
         # Validation des inputs selon les règles métier
         if not validate_search_inputs(inputForm):
             flash('Vous devez fournir soit un ID de réclamation, soit (date + heure + coordonnées).', 'danger')
@@ -116,14 +119,14 @@ def form_info_sinistre():
             response = requests.get(
                 URI_SERV_DATA['chercher_incident'],
                 json=payload,
-                headers=headers,
-                timeout=5
+                headers=headers
             )
 
             # Gestion des codes de réponse
             if response.status_code == 200:
                 # Incident trouvé et complet
                 resultat = response.json()
+                # Stockage temporaire du résultat de la recherche en session
                 session['incident_data'] = resultat
                 return redirect('/afficher_resultat')
 
@@ -157,3 +160,95 @@ def afficher_resultat():
         return redirect('/infos_sinistre')
 
     return render_template('infos_output.html', data=incident_data)
+
+
+@app.route('/ajouter_reclamation', methods=['GET', 'POST'])
+@token_required
+def ajouter_reclamation():
+    """Route pour ajouter un ID réclamation à un incident existant"""
+    incident_data = session.get('incident_data')
+    search_payload = session.get('search_payload')
+
+    if not incident_data or not search_payload:
+        flash('Données manquantes. Veuillez rechercher à nouveau.', 'warning')
+        return redirect('/infos_sinistre')
+
+    form = FormAjoutReclamation()
+
+    if form.validate_on_submit():
+        option = form.options.data
+
+        # On ajoute l'identifiant de réclamation dans l'incident SI
+        # l'utilisateur choisit cette option.
+        if option == 'Ajouter':
+            try:
+                # Préparation du payload et du header pour le PATCH
+                patch_payload = {
+                    **search_payload,
+                    'id_incident': incident_data.get('id_incident')
+                }
+                headers = {'Authorization': f'Bearer {session.get("auth_token")}'}
+
+                # Envoi de la requête PATCH
+                patch_response = requests.patch(
+                    URI_SERV_DATA['ajouter_reclamation'],
+                    json=patch_payload,
+                    headers=headers
+                )
+
+                # Gestion des codes de réponse
+                if patch_response.status_code == 200:
+                    flash('ID réclamation ajouté avec succès.', 'success')
+                else:
+                    flash(f'Erreur lors de l\'ajout (code {patch_response.status_code}).', 'danger')
+
+            except requests.exceptions.RequestException as e:
+                flash(f'Erreur de connexion: {str(e)}', 'danger')
+
+        # Dans tous les cas, afficher le résultat
+        return redirect('/afficher_resultat')
+
+    return render_template('form_ajout_reclamation.html', form=form, incident=incident_data)
+
+
+@app.route('/collecter_donnees', methods=['GET', 'POST'])
+@token_required
+def collecter_donnees():
+    """Route pour collecter les données d'un nouvel incident"""
+    search_payload = session.get('search_payload')
+    if not search_payload:
+        flash('Données manquantes. Veuillez rechercher à nouveau.', 'warning')
+        return redirect('/infos_sinistre')
+
+    form = FormCollecteDonnees()
+
+    if form.validate_on_submit():
+        option = form.options.data
+
+        if option == 'Oui':
+            try:
+                # Envoi de la requête POST pour créer l'incident
+                headers = {'Authorization': f'Bearer {session.get("auth_token")}'}
+                post_response = requests.post(
+                    URI_SERV_DATA['creer_incident'],
+                    json=search_payload,
+                    headers=headers
+                )
+
+                if post_response.status_code == 201:
+                    resultat = post_response.json()
+                    session['incident_data'] = resultat
+                    flash('Incident créé et données collectées.', 'success')
+                    return redirect('/afficher_resultat')
+                else:
+                    flash(f'Erreur lors de la création (code {post_response.status_code}).', 'danger')
+
+            except requests.exceptions.RequestException as e:
+                flash(f'Erreur de connexion: {str(e)}', 'danger')
+
+        else:
+            # L'utilisateur a choisi "Non"
+            flash('Opération annulée.', 'info')
+            return redirect('/infos_sinistre')
+
+    return render_template('form_collecte_donnees.html', form=form)
