@@ -171,6 +171,8 @@ def get_next_id_MONGODB():
 def select_id_reclamation_MONGODB(info_dossier):
     # collecter le id_reclamation recherché
     u_id_reclamation = info_dossier.get("id_reclamation")
+    if u_id_reclamation is None:
+        return None
 
     # récupérer la liste des incidents, et la convertir en liste python
     documents = list(mongodb.find({}, {"_id": 0}))
@@ -246,12 +248,12 @@ def chercher_incident():
     # si le id_réclamation fourni existe déjà, retourner l'incident correspondant
     incident = select_id_reclamation_MONGODB(info_dossier)
     if incident is not None:
-        return jsonify(incident), 200
+        return incident, 200
 
     # si l'incident existe déjà, retourner l'incident correspondant
     incident = select_incident_MONGODB(info_dossier)
     if incident is not None:
-        return jsonify(incident), 210
+        return incident, 210
 
     return jsonify({"erreur": "404 - Document non trouvé"}), 404
 

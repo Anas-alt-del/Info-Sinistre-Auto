@@ -123,7 +123,7 @@ def form_info_sinistre():
             )
 
             # Gestion des codes de réponse
-            if response.status_code == 200:
+            if response.status_code == 200 or (response.status_code == 210 and payload['id_reclamation'] is None):
                 # Incident trouvé et complet
                 resultat = response.json()
                 # Stockage temporaire du résultat de la recherche en session

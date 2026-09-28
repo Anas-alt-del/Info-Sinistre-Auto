@@ -100,6 +100,7 @@ def creer_incident():
 
     # Consolidation des données utilisateur et des informations
     # collectées dans un document JSON
+    payload['id_reclamation'] = [payload['id_reclamation']]
     info_sinistre = {'info_dossier': payload,
                      'info_meteo': info_meteo}
 
