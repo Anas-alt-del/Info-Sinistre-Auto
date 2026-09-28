@@ -3,10 +3,12 @@
 
 
 from flask import Flask, jsonify, request
+from flask_cors import CORS
 import json, os
 from pymongo import MongoClient
 
 app = Flask(__name__)
+CORS(app)
 
 JSONDB_URI = 'db_incidents.json'
 MONGODB_URI = 'mongodb+srv://flouflou:motdepasse@cluster0.u62olan.mongodb.net/?appName=Cluster0' # database: 'info_sinistre_auto'
@@ -298,4 +300,5 @@ def ajouter_reclamation(id_incident):
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5601)
+    port = int(os.environ.get('PORT', 5601))
+    app.run(debug=True, port=port, host='0.0.0.0')
