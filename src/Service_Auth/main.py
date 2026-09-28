@@ -1,5 +1,3 @@
-
-
 from flask import Flask, request, jsonify, redirect
 from flask_cors import CORS
 import jwt, datetime, os
