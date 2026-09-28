@@ -4,11 +4,13 @@ numéro de réclamation) et coordonne Service_DAO et Service_Collecte afin
 de vérifier si un enregistrement existe déjà, collecter les données et
 les enregistrer (le cas échéant)
 '''
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, redirect
 import requests, jwt
+from flasgger import Swagger
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'le bonheur est dans le pré'
+swagger = Swagger(app)
 
 URI_SERV_DAO = {
     'chercher_incident': 'http://127.0.0.1:5601/dao/incidents',
@@ -36,11 +38,57 @@ def verifier_token(token):
 
 
 # ROUTES
+@app.route('/')
+@app.route('/index')
+def index():
+    return redirect('/apidocs')
 
 @app.route('/data', methods=['GET'])
 def chercher_incident():
-    """Requête GET à serv_DAO pour vérifier si un document correspondant
-    aux données utilisateur existe déjà (GET)"""
+    """
+    Recherche d'un document en fonction des informations du dossier
+    ---
+    parameters:
+      - in: header
+        name: token
+        type: string
+        required: true
+        description: Clé d'autentification
+      - in: body
+        name: payload
+        description: Les informations concernant le dossier (id_reclamation, date, heure, latitude, longitude)
+        schema:
+            type: object
+            properties:
+                id_reclamation:
+                    type: string
+                    example: "ABC123"
+                date:
+                    type: string
+                    format: date
+                    example: "2025-12-31"
+                heure:
+                    type: string
+                    format: time
+                    example: "19:15"
+                latitude:
+                    type: number
+                    format: float
+                    example: 49.914
+                longitude:
+                    type: number
+                    format: float
+                    example: 74.963
+    responses:
+        200:
+            description: Dossier trouvé avec le id_reclamation
+        210:
+            description: Dossier trouvé avec les informations de l'incident (date, heure, latitude, longitude)
+        401:
+            description: Non-autorisé. Token manquant, invalide ou expiré
+        404:
+            description: Dossier non trouvé
+    """
 
     # vérifier le token
     token = recuperer_token_header()
@@ -55,6 +103,35 @@ def chercher_incident():
 
 @app.route('/data/reclamation', methods=['PATCH'])
 def ajouter_reclamation():
+    """
+    Ajouter un id_reclamation à un incident existant
+    ---
+    parameters:
+      - in: header
+        name: token
+        type: string
+        required: true
+        description: Clé d'autentification
+      - in: body
+        name: payload
+        description: id_reclamation, id_incident
+        schema:
+            type: object
+            properties:
+                id_reclamation:
+                    type: string
+                    example: "ABC123"
+                id_incident:
+                    type: number
+                    format: integer
+                    example: 1
+    responses:
+        200:
+            description: Id_reclamation ajouté à l'incident
+        401:
+            description: Non-autorisé. Token manquant, invalide ou expiré
+    """
+
     """Requête PATCH à serv_DAO pour ajouter id_reclamation à l'incident
     correspondant (si l'incident n'est pas trouvé avec id_reclamation
     mais qu'il est trouvé avec date/heure/lieu) """
@@ -73,10 +150,48 @@ def ajouter_reclamation():
                                   json={"id_reclamation":id_reclamation}).json() #la méthode format insère id_incident dans le placeholder {}
     return confirmation, 200
 
-@app.route('/data/creer', methods=['POST'])
+@app.route('/data', methods=['POST'])
 def creer_incident():
-    """Appel à Service_Collecte si Service_DAO ne trouve pas un document
-    correspondant"""
+    """
+    Ajouté un nouveau document en fonction des informations du dossier
+    ---
+    parameters:
+      - in: header
+        name: token
+        type: string
+        required: true
+        description: Clé d'autentification
+      - in: body
+        name: payload
+        description: Les informations concernant le dossier (id_reclamation, date, heure, latitude, longitude)
+        schema:
+            type: object
+            properties:
+                id_reclamation:
+                    type: string
+                    example: "ABC123"
+                date:
+                    type: string
+                    format: date
+                    example: "2025-12-31"
+                heure:
+                    type: string
+                    format: time
+                    example: "19:15"
+                latitude:
+                    type: number
+                    format: float
+                    example: 49.914
+                longitude:
+                    type: number
+                    format: float
+                    example: 74.963
+    responses:
+        201:
+            description: Dossier ajouté
+        401:
+            description: Non-autorisé. Token manquant, invalide ou expiré
+    """
 
     # vérifier le token
     token = recuperer_token_header()
@@ -113,6 +228,47 @@ def creer_incident():
 
 @app.route('/data', methods=['PUT'])
 def modifier_incident():
+    """
+    Modifier un document existant
+    ---
+    parameters:
+      - in: header
+        name: token
+        type: string
+        required: true
+        description: Clé d'autentification
+      - in: body
+        name: payload
+        description: Les informations concernant le dossier (id_reclamation, date, heure, latitude, longitude)
+        schema:
+            type: object
+            properties:
+                id_reclamation:
+                    type: string
+                    example: "ABC123"
+                date:
+                    type: string
+                    format: date
+                    example: "2025-12-31"
+                heure:
+                    type: string
+                    format: time
+                    example: "19:15"
+                latitude:
+                    type: number
+                    format: float
+                    example: 49.914
+                longitude:
+                    type: number
+                    format: float
+                    example: 74.963
+    responses:
+        201:
+            description: Dossier modifié
+        401:
+            description: Non-autorisé. Token manquant, invalide ou expiré
+    """
+
     # vérifier le token
     token = recuperer_token_header()
     if not verifier_token(token):
