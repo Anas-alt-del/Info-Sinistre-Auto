@@ -5,14 +5,15 @@ de vérifier si un enregistrement existe déjà, collecter les données et
 les enregistrer (le cas échéant)
 '''
 from flask import Flask, request, jsonify, redirect
-import requests, jwt
+from flask_cors import CORS
+import requests, jwt, os
 from flasgger import Swagger
 
 from config import URI_SERV_COLLECTE, URI_SERV_DAO
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'le bonheur est dans le pré'
 swagger = Swagger(app)
-
+CORS(app)
 
 
 # FONCTIONS UTILITAIRES
@@ -279,4 +280,5 @@ def modifier_incident():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5010)
+    port = int(os.environ.get('PORT', 5010))
+    app.run(debug=True, port=port, host='0.0.0.0')
