@@ -1,5 +1,3 @@
-from asyncio.windows_events import NULL
-
 from flask_wtf import FlaskForm  # Base class for all Flask forms
 from wtforms import (SubmitField, IntegerField, FloatField, RadioField,
                      DateField, TimeField, StringField)  # Field types
