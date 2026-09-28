@@ -1,10 +1,12 @@
 
 
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, redirect
 import jwt, datetime
+from flasgger import Swagger
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'le bonheur est dans le pré'
+swagger = Swagger(app)
 
 DELAI_EXPIRATION_MIN = 60  # >>> Le token expire après x minutes.
 
@@ -24,8 +26,36 @@ def generer_token():
 
 # ROUTES
 
+@app.route('/')
+@app.route('/index')
+def index():
+    return redirect('/apidocs')
+
 @app.route('/auth/login', methods=['POST'])
 def login():
+    """
+    Valider les informations de connexion et retourner un jeton de connexion
+    ---
+    parameters:
+      - in: body
+        name: payload
+        description: Les informations de connexion (username, password)
+        schema:
+            type: object
+            properties:
+                username:
+                    type: string
+                    example: "alain"
+                password:
+                    type: string
+                    example: "flouflou"
+    responses:
+        200:
+            description: Informations de connexion valides. Token retourné. Valide pour 60 minutes
+        401:
+            description: Non-autorisé. Informations de connexion invalides
+    """
+
     # récupérer le payload username + password
     info_auth = request.get_json()
 

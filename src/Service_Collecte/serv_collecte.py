@@ -19,11 +19,11 @@ app = Flask(__name__)
 
 @app.route('/collecte_data', methods=['GET'])
 def collecte_data():
-    input = request.get_json()
-    print(input)  # imprimer payload
-    latitude = input["latitude"]
-    longitude = input["longitude"]
-    date_heure = f'{input["date"]}T{input["heure"]}'  # Format utilisé par l'API
+    payload = request.get_json()
+    print(payload)  # imprimer payload
+    latitude = payload["latitude"]
+    longitude = payload["longitude"]
+    date_heure = f'{payload["date"]}T{payload["heure"]}'  # Format utilisé par l'API
     # conversion de la date au format datetime.date afin de pouvoir
     # effectuer une opération sur la date (soustraire 1 jour)
     date = datetime.strptime(date_heure, "%Y-%m-%dT%H:%M").date()
@@ -113,7 +113,7 @@ def collecte_data():
             'periode_degel': periode_degel
         }
     }
-    return (info_meteo)
+    return info_meteo
 
 
 if __name__ == '__main__':

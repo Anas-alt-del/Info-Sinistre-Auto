@@ -1,11 +1,14 @@
 /src/Service_Infos_Sinistre/.idea
 /src/Service_Infos_Sinistre/.venv
 
+
 /src/Web_App_Infos_Sinistre/.idea
 /src/Web_App_Infos_Sinistre/.venv
+/src/Web_App_Infos_Sinistre/__pycache__
 
 /src/Service_Collecte/.idea
 /src/Service_Collecte/.venv
+/src/Service_Collecte/__pycache__
 
 /src/Service_Data/.idea
 /src/Service_Data/.venv
