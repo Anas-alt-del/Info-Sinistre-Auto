@@ -13,7 +13,8 @@ app.config['SECRET_KEY'] = 'le bonheur est dans le pré'
 URI_SERV_DAO = {
     'chercher_incident': 'http://127.0.0.1:5601/dao/incidents',
     'creer_incident': 'http://127.0.0.1:5601/dao/incidents',
-    'ajouter_reclamation': 'http://127.0.0.1:5601/dao/incidents/{}/reclamation'
+    'ajouter_reclamation': 'http://127.0.0.1:5601/dao/incidents/{}/reclamation',
+    'modifier_incident': 'http://127.0.0.1:5601/dao/incidents'
 }
 URI_SERV_COLLECTE = 'http://127.0.0.1:5020/collecte_data'
 
@@ -108,6 +109,22 @@ def creer_incident():
 
     # Réponse à la requête entrante avec le document JSON
     return nouvel_incident, 201
+
+@app.route('/data', methods=['PUT'])
+def modifier_incident():
+    # vérifier le token
+    token = recuperer_token_header()
+    if not verifier_token(token):
+        return jsonify({"message": "Erreur 401: Unauthorized. Token non fourni, invalide ou expiré"}), 401
+
+    # inputs utilisateur
+    payload = request.get_json()
+
+    # Envoi du document à Service_DAO afin de modifier un enregistrement existant de la collection
+    incident_modifie = requests.put(URI_SERV_DAO['modifier_incident'], json=payload).json()
+
+    # Réponse à la requête entrante avec le document JSON
+    return incident_modifie, 201
 
 
 if __name__ == '__main__':

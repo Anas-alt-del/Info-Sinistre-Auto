@@ -109,14 +109,14 @@ def insert_incident_JSON(nouvel_incident):
 
 
 # Modifier un incident déjà existant de la bd
-def update_incident_JSON(id_incident, incident):
+def update_incident_JSON(incident):
     # récupérer le data de la collection
     with open(JSONDB_URI, 'r', encoding='utf-8') as fin:
         data = json.load(fin)
     documents = data.get(DB_COLLECTION, [])
 
     # retirer le document existant de la bd
-    documents = [doc for doc in documents if doc.get("id_incident") != id_incident]
+    documents = [doc for doc in documents if doc.get("id_incident") != incident["id_incident"]]
 
     # ajouter le document modifié dans la collection
     documents.append(incident)
@@ -214,9 +214,9 @@ def insert_incident_MONGODB(nouvel_incident):
 
 
 # Modifier un incident déjà existant de la bd
-def update_incident_MONGODB(id_incident, incident):
+def update_incident_MONGODB(incident):
     # remplacer le document initial dans la collection avec le document modifié
-    resultat = mongodb.replace_one({"id_incident": id_incident}, incident)
+    resultat = mongodb.replace_one({"id_incident": incident["id_incident"]}, incident)
 
     # retourner le document modifié
     return incident
@@ -269,17 +269,17 @@ def creer_incident():
     return nouvel_incident, 201
 
 
-# # Modifier un incident existant à la bd
-# @app.route('/dao/incidents/<int:id_incident>', methods=['PUT'])
-# def modifier_incident(id_incident):
-#     # récupérer le payload
-#     jsondata = request.get_json()
-#
-#     # modifier le document existant dans la db
-#     update_incident_JSON(id_incident, jsondata)
-#
-#     # retourner le nouveau document avec le code de succès 201
-#     return jsonify(jsondata), 201
+# Modifier un incident existant à la bd
+@app.route('/dao/incidents', methods=['PUT'])
+def modifier_incident():
+    # récupérer le payload
+    jsondata = request.get_json()
+
+    # modifier le document existant dans la db
+    update_incident_MONGODB(jsondata)
+
+    # retourner le nouveau document avec le code de succès 201
+    return jsonify(jsondata), 201
 
 
 # Ajouter un id_reclamation à un incident existant à la bd
