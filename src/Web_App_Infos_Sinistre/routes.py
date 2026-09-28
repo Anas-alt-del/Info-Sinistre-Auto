@@ -13,6 +13,7 @@ from flask import Flask, render_template, flash, redirect, session, request
 # render_template: Converts HTML template files into complete web pages
 # flash: Displays temporary messages to users (like "Success!" or "Error!")
 # redirect: Sends users to a different URL after an action (like after form submission)
+from flask_cors import CORS
 
 from datetime import datetime, timedelta
 from functools import wraps
@@ -32,6 +33,7 @@ app = Flask(__name__)
 # This loads SECRET_KEY and other configuration values
 app.config.from_object(Config)
 
+CORS(app)
 
 # Décorateur pour vérifier que l'utilisateur possède un token valide
 def token_required(f):

@@ -8,13 +8,20 @@ your main code is a best practice!
 
 import os
 
+# URI dynamiques: si l'URI n'existe pas dans les variables d'environnement
+# (définies manuellement dans l'environnement virtuel de Render) alors
+# utiliser localhost et port définis dans le service
+root_data = os.getenv("SERV_DATA_RENDER", "http://127.0.0.1:5010")
+root_auth = os.getenv("SERV_AUTH_RENDER", "http://127.0.0.1:5602")
+
+
 URI_SERV_DATA = {
-    'chercher_incident': 'http://127.0.0.1:5010/data',
-    'creer_incident': 'http://127.0.0.1:5010/data',
-    'ajouter_reclamation': 'http://127.0.0.1:5010/data/reclamation'
+    'chercher_incident': f'{root_data}/data',
+    'creer_incident': f'{root_data}/data',
+    'ajouter_reclamation': f'{root_data}/data/reclamation'
 }
 
-URI_AUTH_SERVICE = 'http://127.0.0.1:5602/auth/login'
+URI_AUTH_SERVICE = f'{root_auth}/auth/login'
 
 class Config(object):
     """
