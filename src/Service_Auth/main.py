@@ -1,12 +1,15 @@
 
 
 from flask import Flask, request, jsonify, redirect
-import jwt, datetime
+from flask_cors import CORS
+import jwt, datetime, os
 from flasgger import Swagger
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'le bonheur est dans le pré'
 swagger = Swagger(app)
+CORS(app)
+
 
 DELAI_EXPIRATION_MIN = 60  # >>> Le token expire après x minutes.
 
@@ -71,4 +74,5 @@ def login():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5602)
+    port = int(os.environ.get('PORT', 5602))
+    app.run(debug=True, port=port, host='0.0.0.0')
