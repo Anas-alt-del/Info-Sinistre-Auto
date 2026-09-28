@@ -5,6 +5,7 @@ les traite et les renvoie à Service_Data au format JSON
 '''
 
 import json
+import os
 
 from shapely.geometry import shape, Point
 
@@ -12,9 +13,12 @@ from datetime import datetime, timedelta
 from operator import concat
 
 from flask import Flask, request
+from flask_cors import CORS
 import requests
 
 app = Flask(__name__)
+
+CORS(app)
 
 
 @app.route('/collecte_data', methods=['GET'])
@@ -117,4 +121,5 @@ def collecte_data():
 
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5020)
+    port = int(os.environ.get('PORT', 5020))
+    app.run(debug=True, port=port, host='0.0.0.0')
