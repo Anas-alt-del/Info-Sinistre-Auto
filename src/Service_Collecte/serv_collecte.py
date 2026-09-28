@@ -6,7 +6,6 @@ les traite et les renvoie à Service_Data au format JSON
 
 import json
 import os
-
 from shapely.geometry import shape, Point
 
 from datetime import datetime, timedelta

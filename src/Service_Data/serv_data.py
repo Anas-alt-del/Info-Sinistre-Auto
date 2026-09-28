@@ -8,17 +8,11 @@ from flask import Flask, request, jsonify, redirect
 import requests, jwt
 from flasgger import Swagger
 
+from config import URI_SERV_COLLECTE, URI_SERV_DAO
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'le bonheur est dans le pré'
 swagger = Swagger(app)
 
-URI_SERV_DAO = {
-    'chercher_incident': 'http://127.0.0.1:5601/dao/incidents',
-    'creer_incident': 'http://127.0.0.1:5601/dao/incidents',
-    'ajouter_reclamation': 'http://127.0.0.1:5601/dao/incidents/{}/reclamation',
-    'modifier_incident': 'http://127.0.0.1:5601/dao/incidents'
-}
-URI_SERV_COLLECTE = 'http://127.0.0.1:5020/collecte_data'
 
 
 # FONCTIONS UTILITAIRES
