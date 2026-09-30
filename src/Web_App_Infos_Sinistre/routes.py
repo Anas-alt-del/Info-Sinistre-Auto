@@ -21,7 +21,7 @@ from functools import wraps
 import requests
 # HTTP framework
 
-from config import Config, URI_AUTH_SERVICE, URI_SERV_DATA  # Import configuration settings
+from config import Config, URI_AUTH_SERVICE, URI_SERV_DATA, root_data, root_auth  # Import configuration settings
 from forms import InfosInputForm, FormAjoutReclamation, FormCollecteDonnees
 from util import validate_search_inputs, build_search_payload
 
@@ -34,6 +34,7 @@ app = Flask(__name__)
 app.config.from_object(Config)
 
 CORS(app)
+
 
 # Décorateur pour vérifier que l'utilisateur possède un token valide
 def token_required(f):
@@ -51,7 +52,8 @@ def token_required(f):
 @app.route('/index', methods=['GET'])
 def index():
     """Route d'accueil - affiche les options de login ou recherche"""
-    return render_template('index.html')
+    return render_template('index.html', api_docs_url=root_data,
+                           api_auth_docs_url=root_auth)
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -211,7 +213,10 @@ def ajouter_reclamation():
         # Dans tous les cas, afficher le résultat
         return redirect('/afficher_resultat')
 
-    return render_template('form_ajout_reclamation.html', form=form, incident=incident_data)
+    return render_template('form_ajout_reclamation.html',
+                           form=form,
+                           id_reclamation=search_payload["id_reclamation"],
+                           id_incident = incident_data.get('id_incident'))
 
 
 @app.route('/collecter_donnees', methods=['GET', 'POST'])
