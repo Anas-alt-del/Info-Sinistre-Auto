@@ -264,3 +264,9 @@ def collecter_donnees():
             return redirect('/infos_sinistre')
 
     return render_template('form_collecte_donnees.html', form=form)
+
+# route utilisée pour garder les services déployés en ligne actifs (spin
+# down automatique par défaut)
+@app.route('/health', methods=['GET'])
+def health():
+    return 'ok', 200
