@@ -13,7 +13,7 @@ from config import URI_SERV_COLLECTE, URI_SERV_DAO
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'le bonheur est dans le pré'
 app.config['SWAGGER'] = {
-    'title' : 'Info-Sinistre-Auto',
+    'title' : 'Info-Sinistre-Auto - Service Data',
     'version' : '1.0'
 }
 swagger = Swagger(app)

@@ -6,7 +6,7 @@ from flasgger import Swagger
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'le bonheur est dans le pré'
 app.config['SWAGGER'] = {
-    'title' : 'Info-Sinistre-Auto',
+    'title' : 'Info-Sinistre-Auto - Service autentification',
     'version' : '1.0'
 }
 swagger = Swagger(app)
