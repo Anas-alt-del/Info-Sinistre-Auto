@@ -23,7 +23,7 @@ if __name__ == '__main__':
                 try:
                     # obtenir le lien depuis la variable d'environnement
                     # correspondante sur Render
-                    requests.get(f"{os.getenv(uri)}")
+                    requests.get(f"{os.getenv(uri)}/health", timeout=5)
                 except:
                     pass
 
