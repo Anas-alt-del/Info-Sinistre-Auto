@@ -73,6 +73,11 @@ def login():
             "message": "Erreur 401 - Non autorisé. Le username ou le password est invalide"
         }), 401
 
+# route utilisée pour garder les services déployés en ligne actifs (spin
+# down automatique par défaut)
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({'status': 'ok'}), 200
 
 
 if __name__ == '__main__':

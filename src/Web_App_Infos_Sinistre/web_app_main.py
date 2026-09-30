@@ -1,13 +1,32 @@
 """
-Web App qui collecte les inputs (date, localisation) et sert les données
- collectée par le service d'intégration à l'utilisateur via un dashboard
+Web App qui collecte les inputs (date, heure, localisation) et affiche
+les données collectées par le service d'intégration à l'utilisateur
+via un dashboard
 """
-#Main entry point for the Flask application.
 from routes import app
 import os
 
+from apscheduler.schedulers.background import BackgroundScheduler
+import requests
+
 if __name__ == '__main__':
-    # This condition ensures the app only runs when this file is executed directly,
-    # not when it's imported as a module in another file
-    port = int(os.environ.get('PORT'))
+    # Si le déploiement est sur Render (ie variable d'environnement
+    # SERV_DATA_RENDER existe) alors appeler les services périodiquement
+    # pour éviter qu'ils ne se désactivent
+    if os.getenv("SERV_DATA_RENDER"):
+
+        for uri in ["SERV_AUTH_RENDER","SERV_COLLECTE_RENDER","SERV_DAO_RENDER","SERV_DATA_RENDER" ]:
+            pass
+        def keep_warm():
+            try:
+                requests.get(f"{os.getenv(uri)}/health")
+            except:
+                pass
+
+        scheduler = BackgroundScheduler()
+        scheduler.add_job(keep_warm, 'interval', minutes=10)
+        scheduler.start()
+
+
+    port = int(os.environ.get('PORT', 5000))
     app.run(debug=True, port=port, host='0.0.0.0')

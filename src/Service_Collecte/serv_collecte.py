@@ -4,7 +4,7 @@ date + heure) depuis Service_Data, collecte les données météo depuis leur sou
 les traite et les renvoie à Service_Data au format JSON
 '''
 
-import json
+import jsonify
 import os
 from shapely.geometry import shape, Point
 
@@ -117,6 +117,12 @@ def collecte_data():
         }
     }
     return info_meteo
+
+# route utilisée pour garder les services déployés en ligne actifs (spin
+# down automatique par défaut)
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({'status': 'ok'}), 200
 
 
 if __name__ == '__main__':

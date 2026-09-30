@@ -283,6 +283,12 @@ def modifier_incident():
     # Réponse à la requête entrante avec le document JSON
     return incident_modifie, 201
 
+# route utilisée pour garder les services déployés en ligne actifs (spin
+# down automatique par défaut)
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({'status': 'ok'}), 200
+
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5010))

@@ -240,7 +240,6 @@ def update_reclamation_MONGODB(id_incident, id_reclamation):
 ######################################################################################
 ##### ROUTES #########################################################################
 
-
 # Chercher un incident à partir des infos "info_dossier"
 @app.route('/dao/incidents', methods=['GET'])
 def chercher_incident():
@@ -298,6 +297,11 @@ def ajouter_reclamation(id_incident):
     # retourner le nouveau document avec le code de succès 201
     return incident, 201
 
+# route utilisée pour garder les services déployés en ligne actifs (spin
+# down automatique par défaut)
+@app.route('/health', methods=['GET'])
+def health():
+    return jsonify({'status': 'ok'}), 200
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5601))
