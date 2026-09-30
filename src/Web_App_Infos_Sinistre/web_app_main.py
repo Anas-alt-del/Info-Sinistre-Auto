@@ -15,18 +15,20 @@ if __name__ == '__main__':
     # pour éviter qu'ils ne se désactivent
     if os.getenv("SERV_DATA_RENDER"):
 
-        for uri in ["SERV_AUTH_RENDER","SERV_COLLECTE_RENDER","SERV_DAO_RENDER","SERV_DATA_RENDER" ]:
-            pass
         def keep_warm():
-            try:
-                requests.get(f"{os.getenv(uri)}/health")
-            except:
-                pass
+            for uri in ["SERV_AUTH_RENDER",
+                        "SERV_COLLECTE_RENDER",
+                        "SERV_DAO_RENDER",
+                        "SERV_DATA_RENDER"]:
+                try:
+                    requests.get(f"{os.getenv(uri)}/health")
+                except:
+                    pass
+
 
         scheduler = BackgroundScheduler()
         scheduler.add_job(keep_warm, 'interval', minutes=10)
         scheduler.start()
-
 
     port = int(os.environ.get('PORT', 5000))
     app.run(debug=True, port=port, host='0.0.0.0')
