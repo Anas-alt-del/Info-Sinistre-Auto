@@ -27,7 +27,7 @@ if __name__ == '__main__':
                 except:
                     pass
 
-
+        keep_warm()
         scheduler = BackgroundScheduler()
         scheduler.add_job(keep_warm, 'interval', minutes=10)
         scheduler.start()
