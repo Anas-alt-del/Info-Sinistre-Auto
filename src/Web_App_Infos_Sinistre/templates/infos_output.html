@@ -2,6 +2,7 @@
 
 {% block content %}
 <h2>Résultats de la recherche</h2>
+
 <pre>{{ data | tojson(indent=2) }}</pre>
 
 <!-- Standard Google Maps Embed -->
@@ -15,7 +16,7 @@
         src="https://maps.google.com/maps?q={{data.info_dossier.latitude}},{{data.info_dossier.longitude}}&z=15&output=embed">
     {% endblock %}
 </iframe>
-<br>
+
 <div class="action-buttons">
     <a href="/index" class="action-btn btn-link">
         <strong>Retour à l'accueil </strong>
