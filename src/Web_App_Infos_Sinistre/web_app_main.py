@@ -21,6 +21,8 @@ if __name__ == '__main__':
                         "SERV_DAO_RENDER",
                         "SERV_DATA_RENDER"]:
                 try:
+                    # obtenir le lien depuis la variable d'environnement
+                    # correspondante sur Render
                     requests.get(f"{os.getenv(uri)}/health")
                 except:
                     pass
