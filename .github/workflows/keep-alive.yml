@@ -1,0 +1,24 @@
+name: Keep Render Alive
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'  # every 10 minutes
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping main service
+        run: curl -f https://projet-c56-c57-web-app-infos-sinistre.onrender.com/health || true
+      
+      - name: Ping auth service
+        run: curl -f https://projet-c56-c57-service-auth.onrender.com/health || true
+      
+      - name: Ping collecte service
+        run: curl -f https://projet-c56-c57-service-collecte.onrender.com/health || true
+      
+      - name: Ping dao service
+        run: curl -f https://projet-c56-c57.onrender.com/health || true
+      
+      - name: Ping data service
+        run: curl -f https://projet-c56-c57-lr9p.onrender.com/health || true
