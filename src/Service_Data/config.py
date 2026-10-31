@@ -1,10 +1,9 @@
 import os
 
-# URI dynamiques : si l'URI n'existe pas dans les variables d'environnement
-# (définies manuellement dans l'environnement virtuel de Render) alors
-# utiliser localhost et port définis dans le service
-dao_service_root = os.getenv("SERV_DAO_RENDER", "http://127.0.0.1:5601")
-collection_service_root = os.getenv("SERV_COLLECTE_RENDER", "http://127.0.0.1:5020")
+# URI dynamiques : utilise les variables d'environnement lorsqu'elles sont
+# définies, sinon localhost et le port définis dans le service.
+dao_service_root = os.getenv("SERV_DAO_URL", "http://127.0.0.1:5601")
+collection_service_root = os.getenv("SERV_COLLECTE_URL", "http://127.0.0.1:5020")
 
 DAO_SERVICE_ENDPOINTS = {
     'find_incident': f'{dao_service_root}/dao/incidents',

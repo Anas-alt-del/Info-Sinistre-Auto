@@ -2,11 +2,10 @@
 
 import os
 
-# URI dynamiques : si l'URI n'existe pas dans les variables d'environnement
-# (définies manuellement dans l'environnement virtuel de Render) alors
-# utiliser localhost et port définis dans le service
-data_service_root = os.getenv("SERV_DATA_RENDER", "http://127.0.0.1:5010")
-auth_service_root = os.getenv("SERV_AUTH_RENDER", "http://127.0.0.1:5602")
+# URI dynamiques : utilise les variables d'environnement lorsqu'elles sont
+# définies, sinon localhost et le port définis dans le service.
+data_service_root = os.getenv("SERV_DATA_URL", "http://127.0.0.1:5010")
+auth_service_root = os.getenv("SERV_AUTH_URL", "http://127.0.0.1:5602")
 
 
 DATA_SERVICE_ENDPOINTS = {

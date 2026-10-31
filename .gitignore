@@ -18,3 +18,5 @@
 /src/Service_Auth/.idea
 /src/Service_Auth/.venv
 /src/Service_Auth/__pycache__
+
+/docs/VIDEO.md

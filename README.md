@@ -53,7 +53,7 @@ Lancez ensuite chaque application dans son propre terminal :
 
 Le projet peut être déployé localement ou sur le cloud. En local, les services utilisent ces ports par défaut et la configuration référence `127.0.0.1`. Démarrez les services d’authentification, de collecte, de DAO et de données avant l’application Web. Ouvrez ensuite [http://127.0.0.1:5000](http://127.0.0.1:5000). Les documentations Swagger sont disponibles à [http://127.0.0.1:5010/apidocs](http://127.0.0.1:5010/apidocs) et [http://127.0.0.1:5602/apidocs](http://127.0.0.1:5602/apidocs).
 
-Sur le cloud, définissez les variables d’environnement `SERV_AUTH_RENDER`, `SERV_COLLECTE_RENDER`, `SERV_DAO_RENDER` et `SERV_DATA_RENDER` avec les URL des services correspondants afin de configurer leurs communications. Pour utiliser MongoDB, connectez-le depuis l’interface Web avec une URI valide; sinon le stockage JSON local est utilisé.
+Sur le cloud, définissez les variables d’environnement `SERV_AUTH_URL`, `SERV_COLLECTE_URL`, `SERV_DAO_URL` et `SERV_DATA_URL` avec les URL des services correspondants afin de configurer leurs communications. Pour utiliser MongoDB, connectez-le depuis l’interface Web avec une URI valide; sinon le stockage JSON local est utilisé.
 
 ## Limites connues
 
@@ -118,7 +118,7 @@ Then start each application in its own terminal:
 
 The project can be deployed locally or in the cloud. For local deployment, the services use these ports by default, and configuration points to `127.0.0.1`. Start authentication, collection, DAO, and data services before the web app. Then open [http://127.0.0.1:5000](http://127.0.0.1:5000). Swagger documentation is available at [http://127.0.0.1:5010/apidocs](http://127.0.0.1:5010/apidocs) and [http://127.0.0.1:5602/apidocs](http://127.0.0.1:5602/apidocs).
 
-For cloud deployment, set the `SERV_AUTH_RENDER`, `SERV_COLLECTE_RENDER`, `SERV_DAO_RENDER`, and `SERV_DATA_RENDER` environment variables to the corresponding service URLs to configure inter-service communication. To use MongoDB, connect it from the web interface with a valid URI; otherwise, local JSON storage is used.
+For cloud deployment, set the `SERV_AUTH_URL`, `SERV_COLLECTE_URL`, `SERV_DAO_URL`, and `SERV_DATA_URL` environment variables to the corresponding service URLs to configure inter-service communication. To use MongoDB, connect it from the web interface with a valid URI; otherwise, local JSON storage is used.
 
 ### Known limitations
 

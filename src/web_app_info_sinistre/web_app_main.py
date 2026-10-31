@@ -10,19 +10,17 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import requests
 
 if __name__ == '__main__':
-    # Si l'application est déployée sur Render (c.-à-d. si la variable
-    # SERV_DATA_RENDER existe) alors appeler les services périodiquement
-    # pour éviter qu'ils ne se désactivent
-    if os.getenv("SERV_DATA_RENDER"):
+    # En déploiement cloud, appeler les services périodiquement pour éviter
+    # qu'ils ne se désactivent.
+    if os.getenv("SERV_DATA_URL"):
 
         def keep_warm():
-            for uri in ["SERV_AUTH_RENDER",
-                        "SERV_COLLECTE_RENDER",
-                        "SERV_DAO_RENDER",
-                        "SERV_DATA_RENDER"]:
+            for uri in ["SERV_AUTH_URL",
+                        "SERV_COLLECTE_URL",
+                        "SERV_DAO_URL",
+                        "SERV_DATA_URL"]:
                 try:
-                    # Récupère l'adresse depuis la variable d'environnement
-                    # correspondante sur Render.
+                    # Récupère l'adresse depuis la variable d'environnement correspondante.
                     requests.get(f"{os.getenv(uri)}/health", timeout=5)
                 except:
                     pass
