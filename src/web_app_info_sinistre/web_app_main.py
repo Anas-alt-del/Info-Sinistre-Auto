@@ -10,7 +10,7 @@ from apscheduler.schedulers.background import BackgroundScheduler
 import requests
 
 if __name__ == '__main__':
-    # Si le déploiement est sur Render (ie variable d'environnement
+    # Si l'application est déployée sur Render (c.-à-d. si la variable
     # SERV_DATA_RENDER existe) alors appeler les services périodiquement
     # pour éviter qu'ils ne se désactivent
     if os.getenv("SERV_DATA_RENDER"):
@@ -21,8 +21,8 @@ if __name__ == '__main__':
                         "SERV_DAO_RENDER",
                         "SERV_DATA_RENDER"]:
                 try:
-                    # obtenir le lien depuis la variable d'environnement
-                    # correspondante sur Render
+                    # Récupère l'adresse depuis la variable d'environnement
+                    # correspondante sur Render.
                     requests.get(f"{os.getenv(uri)}/health", timeout=5)
                 except:
                     pass

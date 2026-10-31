@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+
+<form action="" method="post" novalidate>
+
+    {{ form.hidden_tag() }}
+    <br>
+    <h3>{{ _("L'incident n'a pas été trouvé dans la base de données.") }}</h3>
+    <h3>{{ _('Souhaitez-vous collecter les informations relatives à cet incident?') }}</h3>
+    <br>
+    <p>
+        {% for option in form.options %}
+            {{ option() }} <label for="{{ option.id }}">{{ _(option.label.text) }}</label><br>
+        {% endfor %}
+    </p>
+
+
+    <p>
+        {# SUBMIT BUTTON #}
+        {{ form.submit(value=_('Sauvegarder')) }}
+    </p>
+
+
+</form>
+<br>
+
+
+{% endblock %}

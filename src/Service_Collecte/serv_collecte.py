@@ -21,51 +21,51 @@ CORS(app)
 
 
 @app.route('/collecte_data', methods=['GET'])
-def collecte_data():
-    payload = request.get_json()
-    print(payload)  # imprimer payload
-    latitude = payload["latitude"]
-    longitude = payload["longitude"]
-    date_heure = f'{payload["date"]}T{payload["heure"]}'  # Format utilisé par l'API
-    # conversion de la date au format datetime.date afin de pouvoir
-    # effectuer une opération sur la date (soustraire 1 jour)
-    date = datetime.strptime(date_heure, "%Y-%m-%dT%H:%M").date()
+def collect_data():
+    request_payload = request.get_json()
+    print(request_payload)  # Affiche les données reçues.
+    latitude = request_payload["latitude"]
+    longitude = request_payload["longitude"]
+    incident_datetime = f'{request_payload["date"]}T{request_payload["heure"]}'  # Format attendu par l'API.
+    # Convertit la date en datetime.date afin de pouvoir effectuer
+    # une opération sur la date (soustraire un jour).
+    incident_date = datetime.strptime(incident_datetime, "%Y-%m-%dT%H:%M").date()
 
-    ## Appel à l'API open-meteo
-    URI_SERV_METEO = (f'https://archive-api.open-meteo.com/v1/archive?'
+    # Appel à l'API Open-Meteo.
+    WEATHER_SERVICE_URL = (f'https://archive-api.open-meteo.com/v1/archive?'
                       f'latitude={latitude}&'
                       f'longitude={longitude}&'
-                      f'start_date={date - timedelta(days=1)}&'
-                      f'end_date={date}&'
+                      f'start_date={incident_date - timedelta(days=1)}&'
+                      f'end_date={incident_date}&'
                       'daily=sunrise,sunset&'
                       'hourly=temperature_2m,rain,snowfall,cloud_cover,'
                       'wind_speed_10m,wind_direction_10m,weather_code&'
                       'timezone=auto')
 
-    data_meteo = requests.get(URI_SERV_METEO).json()
+    weather_data = requests.get(WEATHER_SERVICE_URL).json()
 
-    # Transformations
-    # a. Ne conserver que les 24h précédant le sinistre pour l'analyse
-    # Arrondir date_heure au début de l'heure (remplacer les 2
-    # derniers caractères par 00)
-    date_heure_arr = concat(date_heure[:-2], '00')
-    heures = data_meteo["hourly"]["time"]  # liste des heures correspondant aux points de données
-    index_heure = heures.index(date_heure_arr)
+    # Transformations des données.
+    # a. Ne conserver que les 24 heures précédant le sinistre pour l'analyse.
+    # Arrondit l'heure de l'incident au début de l'heure (remplace les deux
+    # derniers caractères par 00).
+    rounded_incident_datetime = concat(incident_datetime[:-2], '00')
+    available_hours = weather_data["hourly"]["time"]  # liste des heures correspondant aux points de données
+    hour_index = available_hours.index(rounded_incident_datetime)
 
     # Données des 24h pertinentes
-    temp = data_meteo["hourly"]["temperature_2m"][(index_heure - 23):(index_heure + 1)]
-    pluie = data_meteo["hourly"]["rain"][(index_heure - 23):(index_heure + 1)]
-    neige = data_meteo["hourly"]["snowfall"][(index_heure - 23):(index_heure + 1)]
+    temperatures = weather_data["hourly"]["temperature_2m"][(hour_index - 23):(hour_index + 1)]
+    rainfall = weather_data["hourly"]["rain"][(hour_index - 23):(hour_index + 1)]
+    snowfall = weather_data["hourly"]["snowfall"][(hour_index - 23):(hour_index + 1)]
 
     # b. Calculer le min/max de température, l'accumulation de pluie et de neige
-    temp_min = min(temp)
-    temp_max = max(temp)
-    pluie_24h = sum(pluie)
-    neige_24h = sum(neige)
+    minimum_temperature = min(temperatures)
+    maximum_temperature = max(temperatures)
+    rainfall_24h = sum(rainfall)
+    snowfall_24h = sum(snowfall)
 
-    ## Zone de dégel
-    # Chargement du fichier geoJSON
-    URI_ZONE_DEGEL = ('https://ws.mapserver.transports.gouv.qc.ca/swtq?'
+    # Zone de dégel.
+    # Charge le fichier GeoJSON.
+    THAW_ZONE_SERVICE_URL = ('https://ws.mapserver.transports.gouv.qc.ca/swtq?'
                       'service=wfs&'
                       'version=2.0.0&'
                       'request=getfeature&'
@@ -73,53 +73,52 @@ def collecte_data():
                       'outfile=ZoneDegel&'
                       'srsname=EPSG:4326&'
                       'outputformat=geojson')
-    data_degel = requests.get(URI_ZONE_DEGEL).json()
+    thaw_zone_data = requests.get(THAW_ZONE_SERVICE_URL).json()
 
     # Création d'un objet Point contenant les coordonnées de l'incident
     point = Point(longitude, latitude)
 
-    # On teste chaque poygone contenu dans le fichier geoJSON pour
-    # déterminer si il contient les coordonnées renseignées, tant qu'on
-    # n'a pas trouvé le bon
-    trouve = False
-    for feature in data_degel['features']:
-        if not trouve:
+    # Teste chaque polygone du fichier GeoJSON pour déterminer s'il
+    # contient les coordonnées renseignées, jusqu'à trouver le bon.
+    found_zone = False
+    for feature in thaw_zone_data['features']:
+        if not found_zone:
             polygon = shape(feature['geometry'])
             if polygon.contains(point):
-                zone_degel = feature['properties']['zone']
-                periode_degel = f'{feature['properties']['dat_debut_zone']} - {feature['properties']['dat_fin_zone']}'
-                trouve = True
+                thaw_zone = feature['properties']['zone']
+                thaw_period = f'{feature['properties']['dat_debut_zone']} - {feature['properties']['dat_fin_zone']}'
+                found_zone = True
 
-    # Cas où on trouve pas les coordonnées après avoir parcouru tous les polygones (i.e. coordonnées hors Québec):
-    if not trouve:
-        zone_degel = periode_degel = 'N/A'
+    # Si aucun polygone ne contient les coordonnées, celles-ci sont hors Québec.
+    if not found_zone:
+        thaw_zone = thaw_period = 'N/A'
 
     # Document JSON retourné par le service
-    info_meteo = {
+    weather_info = {
         'horaire': {
-            'temperature_C': data_meteo["hourly"]["temperature_2m"][index_heure],
-            'pluie_mm': data_meteo["hourly"]["rain"][index_heure],
-            'neige_cm': data_meteo["hourly"]["snowfall"][index_heure],
-            'couverture_nuageuse_pct': data_meteo["hourly"]["cloud_cover"][index_heure],
-            'vitesse_vent_kmh': data_meteo["hourly"]["wind_speed_10m"][index_heure],
-            'direction_vent_deg': data_meteo["hourly"]["wind_direction_10m"][index_heure],
-            'code_WMO': data_meteo["hourly"]["weather_code"][index_heure]
+            'temperature_C': weather_data["hourly"]["temperature_2m"][hour_index],
+            'pluie_mm': weather_data["hourly"]["rain"][hour_index],
+            'neige_cm': weather_data["hourly"]["snowfall"][hour_index],
+            'couverture_nuageuse_pct': weather_data["hourly"]["cloud_cover"][hour_index],
+            'vitesse_vent_kmh': weather_data["hourly"]["wind_speed_10m"][hour_index],
+            'direction_vent_deg': weather_data["hourly"]["wind_direction_10m"][hour_index],
+            'code_WMO': weather_data["hourly"]["weather_code"][hour_index]
         },
         'journalier': {
-            'temperature_min_C': temp_min,
-            'temperature_max_C': temp_max,
-            'pluie_24h_mm': pluie_24h,
-            'neige_24h_cm': neige_24h,
-            'lever_soleil': data_meteo["daily"]["sunrise"][-1],
-            'coucher_soleil': data_meteo["daily"]["sunset"][-1],
-            'zone_degel': zone_degel,
-            'periode_degel': periode_degel
+            'temperature_min_C': minimum_temperature,
+            'temperature_max_C': maximum_temperature,
+            'pluie_24h_mm': rainfall_24h,
+            'neige_24h_cm': snowfall_24h,
+            'lever_soleil': weather_data["daily"]["sunrise"][-1],
+            'coucher_soleil': weather_data["daily"]["sunset"][-1],
+            'zone_degel': thaw_zone,
+            'periode_degel': thaw_period
         }
     }
-    return info_meteo
+    return weather_info
 
-# route utilisée pour garder les services déployés en ligne actifs (spin
-# down automatique par défaut)
+# Route utilisée pour maintenir les services déployés actifs (arrêt
+# automatique par défaut).
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({'status': 'ok'}), 200

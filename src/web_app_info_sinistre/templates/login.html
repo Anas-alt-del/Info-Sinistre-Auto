@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<div class="login-container">
+        <div class="login-header">
+            <h1>🔐 {{ _('Connexion') }}</h1>
+            <p>{{ _("Entrez vos identifiants pour accéder à l'application") }}</p>
+        </div>
+
+        <form method="POST" action="/login">
+            <div class="mb-3">
+                <label for="username" class="form-label">{{ _("Nom d'utilisateur") }}</label>
+                <input type="text" class="form-control" id="username" name="username" required placeholder="{{ _("Entrez votre nom d'utilisateur") }}">
+            </div>
+
+            <div class="mb-3">
+                <label for="password" class="form-label">{{ _('Mot de passe') }}</label>
+                <input type="password" class="form-control" id="password" name="password" required placeholder="{{ _('Entrez votre mot de passe') }}">
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-login">{{ _('Se connecter') }}</button>
+        </form>
+
+        <div class="back-link">
+            <a href="/">← {{ _("Retour à l'accueil") }}</a>
+        </div>
+    </div>
+
+{% endblock %}

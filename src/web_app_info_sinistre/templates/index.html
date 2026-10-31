@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="home-container">
+    <div class="home-header">
+        <h1>🚨 {{ _('Tableau de bord sinistres') }}</h1>
+        <p>{{ _('Bienvenue! Gérez et recherchez facilement les données concernant les sinistres automobiles.') }}</p>
+    </div>
+
+    <section class="dashboard dashboard-section" aria-labelledby="database-heading">
+        <h2 id="database-heading">{{ _('Connexion à la base de données') }}</h2>
+        {% if database_status is none %}
+            <p class="text-danger" role="status">{{ _('État de la base de données indisponible') }}</p>
+        {% elif database_status.connected %}
+            <p class="text-success" role="status">● {{ _('MongoDB connecté') }}</p>
+        {% else %}
+            <p class="text-secondary" role="status">● {{ _('Base JSON locale active') }}</p>
+        {% endif %}
+        <form method="post" action="{{ url_for('connect_database') }}">
+            <label for="connection-string" class="form-label">
+                {{ _('URI de connexion MongoDB (facultative)') }}
+            </label>
+            <input id="connection-string" name="connection_string" type="password"
+                   class="form-control" autocomplete="new-password"
+                   aria-describedby="connection-help">
+            <div id="connection-help" class="form-text">
+                {{ _('Saisissez une URI MongoDB pour utiliser MongoDB. Laissez vide pour utiliser le fichier JSON local.') }}
+            </div>
+            <div class="d-flex gap-2 mt-3">
+                <button type="submit" class="btn btn-primary">{{ _('Se connecter à MongoDB') }}</button>
+                <button type="submit" class="btn btn-outline-secondary"
+                        formaction="{{ url_for('disconnect_database') }}"
+                        {% if database_status is none or not database_status.connected %}disabled{% endif %}>
+                    {{ _('Se déconnecter') }}
+                </button>
+            </div>
+        </form>
+    </section>
+
+    <div class="action-buttons">
+        <a href="/login" class="action-btn btn-login-home">
+            <div class="action-btn-icon">🔐</div>
+            <strong>{{ _('Connexion') }}</strong>
+            <div class="action-btn-text">{{ _('Obtenir un token') }}</div>
+        </a>
+        <a href="/infos_sinistre" class="action-btn btn-search-home">
+            <div class="action-btn-icon">🔍</div>
+            <strong>{{ _('Recherche') }}</strong>
+            <div class="action-btn-text">{{ _('Chercher un incident') }}</div>
+        </a>
+    </div>
+
+    <div class="features">
+        <h3>✨ {{ _('Fonctionnalités') }}</h3>
+        <div class="feature-item">
+            <div class="feature-icon">✓</div>
+            <div class="feature-text">{{ _('Recherchez un incident existant par ID de réclamation ou par date/heure/localisation') }}</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon">✓</div>
+            <div class="feature-text">{{ _("Créez un nouvel incident si celui-ci n'existe pas dans la base de données") }}</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon">✓</div>
+            <div class="feature-text">{{ _('Ajoutez des IDs de réclamation à un incident existant') }}</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon">✓</div>
+            <div class="feature-text">{{ _('Consultez les données météorologiques associées à chaque incident') }}</div>
+        </div>
+        <div class="feature-item">
+            <div class="feature-icon">✓</div>
+            <div class="feature-text">{{ _('Authentification sécurisée avec token') }}</div>
+        </div>
+    </div>
+    <br>
+    <div class="developers-section">
+        <h3>👨‍💻 {{ _('Développeurs') }}</h3>
+        <div class="developers-links">
+            <a href="{{ api_docs_url }}" class="dev-link" target="_blank">
+                {{ _('API Docs - Info-Sinistre-Auto') }}
+            </a>
+            <br>
+            <a href="{{ api_auth_docs_url }}" class="dev-link" target="_blank">
+                {{ _('API Docs - Authentification (Info-Sinistre-Auto)') }}
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
