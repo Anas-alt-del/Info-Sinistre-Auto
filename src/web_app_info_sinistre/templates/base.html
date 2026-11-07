@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{ active_language }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Document</title>
+    <title>{{ _('Info-Sinistre-Auto') }}</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
         body {
@@ -90,6 +90,12 @@
             padding: 30px;
         }
 
+        .home-container > section.dashboard {
+            max-width: 900px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
         .dashboard h2 {
             color: #667eea;
             font-weight: bold;
@@ -174,6 +180,12 @@
             transition: transform 0.2s, box-shadow 0.2s;
         }
 
+        .home-container > .action-buttons .action-btn {
+            box-sizing: border-box;
+            width: 300px;
+            max-width: 100%;
+        }
+
         .action-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
@@ -210,6 +222,13 @@
     </style>
 </head>
 <body>
+
+<nav class="d-flex justify-content-end gap-3 mb-3" aria-label="{{ _('Langue') }}">
+    <a href="{{ url_for('change_language', language_code='fr') }}"
+       {% if active_language == 'fr' %}aria-current="page"{% endif %}>Français</a>
+    <a href="{{ url_for('change_language', language_code='en') }}"
+       {% if active_language == 'en' %}aria-current="page"{% endif %}>English</a>
+</nav>
 
 <!-- Affichage des messages flash -->
 {% with messages = get_flashed_messages(with_categories=true) %}

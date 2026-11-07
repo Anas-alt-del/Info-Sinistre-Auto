@@ -1,10 +1,10 @@
-from flask_wtf import FlaskForm  # Base class for all Flask forms
+from flask_wtf import FlaskForm  # Classe de base de tous les formulaires Flask
 from wtforms import (SubmitField, IntegerField, FloatField, RadioField,
-                     DateField, TimeField, StringField)  # Field types
-from wtforms.validators import Optional, data_required  # Validation rules
+                     DateField, TimeField, StringField)  # Types de champs
+from wtforms.validators import Optional, data_required  # Règles de validation
 
 
-class InfosInputForm(FlaskForm):
+class IncidentSearchForm(FlaskForm):
     """
     Formulaire d'insertion de données:
     -id_reclamation (nullable)
@@ -22,7 +22,7 @@ class InfosInputForm(FlaskForm):
 
     submit = SubmitField("Sauvegarder")
 
-class FormAjoutReclamation(FlaskForm):
+class ClaimAdditionForm(FlaskForm):
     """
     Formulaire donnant l'option à l'utilisateur d'ajouter la réclamation
     """
@@ -32,7 +32,7 @@ class FormAjoutReclamation(FlaskForm):
     submit = SubmitField("Sauvegarder")
 
 
-class FormCollecteDonnees(FlaskForm):
+class DataCollectionForm(FlaskForm):
     """
     Formulaire donnant l'option à l'utilisateur de collecter les informations
     """

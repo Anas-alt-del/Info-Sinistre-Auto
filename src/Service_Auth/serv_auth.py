@@ -13,23 +13,23 @@ swagger = Swagger(app)
 CORS(app)
 
 
-DELAI_EXPIRATION_MIN = 60  # >>> Le token expire après x minutes.
+TOKEN_EXPIRATION_MINUTES = 60  # >>> Le token expire après x minutes.
 
 
-# FONCTIONS UTILITAIRES
+# Fonctions utilitaires
 
-def verifier_login(username, password):
-    if username.lower() == 'alain' and password.lower() == 'flouflou':
+def verify_login(username, password):
+    if username.lower() == 'user' and password.lower() == 'user1234':
         return True
     return False
 
-def generer_token():
-    expiration_date = (datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=DELAI_EXPIRATION_MIN))
+def generate_token():
+    expiration_date = (datetime.datetime.now(datetime.UTC) + datetime.timedelta(minutes=TOKEN_EXPIRATION_MINUTES))
     token = jwt.encode({'exp': expiration_date}, app.config['SECRET_KEY'], algorithm='HS256')
     return token
 
 
-# ROUTES
+# Routes
 
 @app.route('/')
 @app.route('/index')
@@ -50,10 +50,10 @@ def login():
             properties:
                 username:
                     type: string
-                    example: "alain"
+                    example: "user"
                 password:
                     type: string
-                    example: "flouflou"
+                    example: "user1234"
     responses:
         200:
             description: Informations de connexion valides. Token retourné. Valide pour 60 minutes
@@ -61,20 +61,20 @@ def login():
             description: Non-autorisé. Informations de connexion invalides
     """
 
-    # récupérer le payload username + password
-    info_auth = request.get_json()
+    # Récupère le nom d'utilisateur et le mot de passe transmis.
+    authentication_data = request.get_json()
 
-    if verifier_login(info_auth.get('username'), info_auth.get('password')):
+    if verify_login(authentication_data.get('username'), authentication_data.get('password')):
         return jsonify({
-            "token": generer_token()
+            "token": generate_token()
         }), 200
     else:
         return jsonify({
             "message": "Erreur 401 - Non autorisé. Le username ou le password est invalide"
         }), 401
 
-# route utilisée pour garder les services déployés en ligne actifs (spin
-# down automatique par défaut)
+# Route utilisée pour maintenir les services déployés actifs (arrêt
+# automatique par défaut).
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({'status': 'ok'}), 200

@@ -1,15 +1,17 @@
 import os
 
-# URI dynamiques: si l'URI n'existe pas dans les variables d'environnement
-# (définies manuellement dans l'environnement virtuel de Render) alors
-# utiliser localhost et port définis dans le service
-root_dao = os.getenv("SERV_DAO_RENDER", "http://127.0.0.1:5601")
-root_collecte = os.getenv("SERV_COLLECTE_RENDER", "http://127.0.0.1:5020")
+# URI dynamiques : utilise les variables d'environnement lorsqu'elles sont
+# définies, sinon localhost et le port définis dans le service.
+dao_service_root = os.getenv("SERV_DAO_URL", "http://127.0.0.1:5601")
+collection_service_root = os.getenv("SERV_COLLECTE_URL", "http://127.0.0.1:5020")
 
-URI_SERV_DAO = {
-    'chercher_incident': f'{root_dao}/dao/incidents',
-    'creer_incident': f'{root_dao}/dao/incidents',
-    'ajouter_reclamation': f'{root_dao}/dao/incidents/''{}''/reclamation',
-    'modifier_incident': f'{root_dao}/dao/incidents'
+DAO_SERVICE_ENDPOINTS = {
+    'find_incident': f'{dao_service_root}/dao/incidents',
+    'create_incident': f'{dao_service_root}/dao/incidents',
+    'add_claim': f'{dao_service_root}/dao/incidents/''{}''/reclamation',
+    'update_incident': f'{dao_service_root}/dao/incidents',
+    'database_status': f'{dao_service_root}/dao/database/status',
+    'database_connect': f'{dao_service_root}/dao/database/connect',
+    'database_disconnect': f'{dao_service_root}/dao/database/disconnect'
 }
-URI_SERV_COLLECTE = f'{root_collecte}/collecte_data'
+DATA_COLLECTION_URL = f'{collection_service_root}/collecte_data'

@@ -9,7 +9,7 @@ from flask_cors import CORS
 import requests, jwt, os
 from flasgger import Swagger
 
-from config import URI_SERV_COLLECTE, URI_SERV_DAO
+from config import DATA_COLLECTION_URL, DAO_SERVICE_ENDPOINTS
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'le bonheur est dans le pré'
 app.config['SWAGGER'] = {
@@ -21,15 +21,15 @@ swagger = Swagger(app)
 CORS(app)
 
 
-# FONCTIONS UTILITAIRES
+# Fonctions utilitaires
 
-def recuperer_token_header():
+def get_bearer_token():
     auth_header = request.headers.get('Authorization', '')
     if auth_header.startswith('Bearer '):
         return auth_header.split(' ')[1]  # retourner uniquement le token
     return None
 
-def verifier_token(token):
+def is_token_valid(token):
     try:
         jwt.decode(token, key=app.config['SECRET_KEY'], algorithms='HS256')
         return True
@@ -37,14 +37,14 @@ def verifier_token(token):
         return False
 
 
-# ROUTES
+# Routes
 @app.route('/')
 @app.route('/index')
 def index():
     return redirect('/apidocs')
 
 @app.route('/data', methods=['GET'])
-def chercher_incident():
+def find_incident():
     """
     Recherche d'un document en fonction des informations du dossier
     ---
@@ -90,19 +90,19 @@ def chercher_incident():
             description: Dossier non trouvé
     """
 
-    # vérifier le token
-    token = recuperer_token_header()
-    if not verifier_token(token):
+    # Vérifie le jeton d'authentification.
+    token = get_bearer_token()
+    if not is_token_valid(token):
         return jsonify({"message": "Erreur 401: Unauthorized. Token non fourni, invalide ou expiré"}), 401
 
     payload = request.get_json()
-    response = requests.get(URI_SERV_DAO['chercher_incident'], json=payload)
-    resultat = response.json()
+    response = requests.get(DAO_SERVICE_ENDPOINTS['find_incident'], json=payload)
+    result = response.json()
     code = response.status_code
-    return resultat, code
+    return result, code
 
 @app.route('/data/reclamation', methods=['PATCH'])
-def ajouter_reclamation():
+def add_claim():
     """
     Ajouter un id_reclamation à un incident existant
     ---
@@ -136,22 +136,22 @@ def ajouter_reclamation():
     correspondant (si l'incident n'est pas trouvé avec id_reclamation
     mais qu'il est trouvé avec date/heure/lieu) """
 
-    # vérifier le token
-    token = recuperer_token_header()
-    if not verifier_token(token):
+    # Vérifie le jeton d'authentification.
+    token = get_bearer_token()
+    if not is_token_valid(token):
         return jsonify({"message": "Erreur 401: Unauthorized. Token non fourni, invalide ou expiré"}), 401
 
     payload = request.get_json()
-    id_reclamation = payload["id_reclamation"]
-    id_incident = payload["id_incident"]
+    claim_id = payload["id_reclamation"]
+    incident_id = payload["id_incident"]
 
-    # requête PATCH afin d'ajouter le id à la liste
-    confirmation = requests.patch(URI_SERV_DAO['ajouter_reclamation'].format(id_incident),
-                                  json={"id_reclamation":id_reclamation}).json() #la méthode format insère id_incident dans le placeholder {}
+    # Envoie une requête PATCH pour ajouter l'identifiant à la liste.
+    confirmation = requests.patch(DAO_SERVICE_ENDPOINTS['add_claim'].format(incident_id),
+                                  json={"id_reclamation":claim_id}).json()  # Le format insère l'identifiant d'incident dans l'espace réservé.
     return confirmation, 200
 
 @app.route('/data', methods=['POST'])
-def creer_incident():
+def create_incident():
     """
     Ajouté un nouveau document en fonction des informations du dossier
     ---
@@ -193,41 +193,40 @@ def creer_incident():
             description: Non-autorisé. Token manquant, invalide ou expiré
     """
 
-    # vérifier le token
-    token = recuperer_token_header()
-    if not verifier_token(token):
+    # Vérifie le jeton d'authentification.
+    token = get_bearer_token()
+    if not is_token_valid(token):
         return jsonify({"message": "Erreur 401: Unauthorized. Token non fourni, invalide ou expiré"}), 401
 
-    # inputs utilisateur
+    # Récupère les données saisies par l'utilisateur.
     payload = request.get_json()
     latitude = payload["latitude"]
     longitude = payload["longitude"]
-    date = payload["date"]
-    heure = payload["heure"]
+    incident_date = payload["date"]
+    incident_time = payload["heure"]
 
-    # Appel au service de collecte de données
-    info_meteo = requests.get(URI_SERV_COLLECTE, json={
+    # Appelle le service de collecte des données.
+    weather_info = requests.get(DATA_COLLECTION_URL, json={
         "latitude": latitude,
         "longitude": longitude,
-        "date": date,
-        "heure": heure
+        "date": incident_date,
+        "heure": incident_time
     }).json()
 
-    # Consolidation des données utilisateur et des informations
-    # collectées dans un document JSON
+    # Regroupe les données utilisateur et les informations collectées
+    # dans un document JSON.
     payload['id_reclamation'] = [payload['id_reclamation']]
-    info_sinistre = {'info_dossier': payload,
-                     'info_meteo': info_meteo}
+    claim_record = {'info_dossier': payload,
+                     'info_meteo': weather_info}
 
-    # Envoi du document à Service_DAO afin de l'insérer dans la
-    # collection (POST)
-    nouvel_incident = requests.post(URI_SERV_DAO['creer_incident'], json=info_sinistre).json()
+    # Envoie le document au service DAO pour l'insérer dans la collection.
+    new_incident = requests.post(DAO_SERVICE_ENDPOINTS['create_incident'], json=claim_record).json()
 
-    # Réponse à la requête entrante avec le document JSON
-    return nouvel_incident, 201
+    # Renvoie le document JSON en réponse à la requête.
+    return new_incident, 201
 
 @app.route('/data', methods=['PUT'])
-def modifier_incident():
+def update_incident():
     """
     Modifier un document existant
     ---
@@ -269,22 +268,61 @@ def modifier_incident():
             description: Non-autorisé. Token manquant, invalide ou expiré
     """
 
-    # vérifier le token
-    token = recuperer_token_header()
-    if not verifier_token(token):
+    # Vérifie le jeton d'authentification.
+    token = get_bearer_token()
+    if not is_token_valid(token):
         return jsonify({"message": "Erreur 401: Unauthorized. Token non fourni, invalide ou expiré"}), 401
 
-    # inputs utilisateur
+    # Récupère les données saisies par l'utilisateur.
     payload = request.get_json()
 
-    # Envoi du document à Service_DAO afin de modifier un enregistrement existant de la collection
-    incident_modifie = requests.put(URI_SERV_DAO['modifier_incident'], json=payload).json()
+    # Envoie le document au service DAO pour modifier un enregistrement existant.
+    updated_incident = requests.put(DAO_SERVICE_ENDPOINTS['update_incident'], json=payload).json()
 
-    # Réponse à la requête entrante avec le document JSON
-    return incident_modifie, 201
+    # Renvoie le document JSON en réponse à la requête.
+    return updated_incident, 201
 
-# route utilisée pour garder les services déployés en ligne actifs (spin
-# down automatique par défaut)
+
+@app.route('/database/status', methods=['GET'])
+def database_status():
+    """Relaye à l'interface le mode de stockage actif du DAO."""
+    try:
+        response = requests.get(DAO_SERVICE_ENDPOINTS['database_status'], timeout=8)
+    except requests.exceptions.RequestException:
+        app.logger.exception("Impossible de joindre le statut de la base DAO.")
+        return jsonify({"message": "Le service DAO est indisponible."}), 503
+    return jsonify(response.json()), response.status_code
+
+
+@app.route('/database/connect', methods=['POST'])
+def database_connect():
+    """Transmet l'URI au DAO sans la conserver dans Service_Data."""
+    payload = request.get_json(silent=True) or {}
+    try:
+        response = requests.post(
+            DAO_SERVICE_ENDPOINTS['database_connect'], json=payload, timeout=8
+        )
+    except requests.exceptions.RequestException:
+        app.logger.exception("Impossible de joindre le service DAO pour la connexion.")
+        return jsonify({"message": "Le service DAO est indisponible."}), 503
+    return jsonify(response.json()), response.status_code
+
+
+@app.route('/database/disconnect', methods=['POST'])
+def database_disconnect():
+    """Demande au DAO de fermer MongoDB et de reprendre le stockage JSON."""
+    try:
+        response = requests.post(
+            DAO_SERVICE_ENDPOINTS['database_disconnect'], timeout=8
+        )
+    except requests.exceptions.RequestException:
+        app.logger.exception("Impossible de joindre le service DAO pour la déconnexion.")
+        return jsonify({"message": "Le service DAO est indisponible."}), 503
+    return jsonify(response.json()), response.status_code
+
+
+# Route utilisée pour maintenir les services déployés actifs (arrêt
+# automatique par défaut).
 @app.route('/health', methods=['GET'])
 def health():
     return jsonify({'status': 'ok'}), 200

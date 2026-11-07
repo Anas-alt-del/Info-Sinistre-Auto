@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1>Saisie des informations du sinistre</h1>
+<h1>{{ _('Saisie des informations du sinistre') }}</h1>
 
 {# HTML form for submitting project data #}
 {# action="": Submit to the same route #}
@@ -13,36 +13,35 @@
     {{ form.hidden_tag() }}
 
     <p>
-        {# Render the label: "Identifiant de réclamation" #}
-        {{ form.id_reclamation.label }}<br>
+        {{ _('Identifiant de réclamation') }}<br>
         {# Render the input field with width of 15 characters #}
         {{ form.id_reclamation(size=15, required=False) }}
     </p>
 
     <p>
         {# Render the label: "Date" #}
-        {{ form.date.label }}<br>
+        {{ _('Date') }}<br>
         {# Render the input field with width of 10 characters #}
         {{ form.date(size=10, required=False) }}
     </p>
 
     <p>
         {# Render the label: "Heure" #}
-        {{ form.heure.label }}<br>
+        {{ _('Heure') }}<br>
         {# Render the input field with width of 10 characters #}
         {{ form.heure(size=10, required=False) }}
     </p>
 
     <p>
         {# Render the label: "Latitude" #}
-        {{ form.lat.label }}<br>
+        {{ _('Latitude') }}<br>
         {# Render the input field with width of 15 characters #}
         {{ form.lat(size=15, required=False) }}
     </p>
 
     <p>
         {# Render the label: "Longitude" #}
-        {{ form.long.label }}<br>
+        {{ _('Longitude') }}<br>
         {# Render the input field with width of 15 characters #}
         {{ form.long(size=15, required=False) }}
     </p>
@@ -50,14 +49,14 @@
     {# SUBMIT BUTTON #}
     <p>
         {# Render the submit button: "Sauvegarder" (Save) #}
-        {{ form.submit() }}
+        {{ form.submit(value=_('Sauvegarder')) }}
     </p>
 </form>
 
 <!-- Action Buttons -->
 <div class="action-buttons">
     <a href="/index" class="action-btn">
-        ← Retour à l'accueil
+        ← {{ _("Retour à l'accueil") }}
     </a>
 </div>
 {% endblock %}
