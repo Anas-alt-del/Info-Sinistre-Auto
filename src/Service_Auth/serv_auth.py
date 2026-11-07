@@ -19,7 +19,7 @@ TOKEN_EXPIRATION_MINUTES = 60  # >>> Le token expire après x minutes.
 # Fonctions utilitaires
 
 def verify_login(username, password):
-    if username.lower() == 'alain' and password.lower() == 'flouflou':
+    if username.lower() == 'user' and password.lower() == 'user1234':
         return True
     return False
 
@@ -50,10 +50,10 @@ def login():
             properties:
                 username:
                     type: string
-                    example: "alain"
+                    example: "user"
                 password:
                     type: string
-                    example: "flouflou"
+                    example: "user1234"
     responses:
         200:
             description: Informations de connexion valides. Token retourné. Valide pour 60 minutes

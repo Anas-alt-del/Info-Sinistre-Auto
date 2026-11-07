@@ -28,7 +28,7 @@ L’application Web communique avec les services d’authentification et de donn
 
 ## Démarrage local
 
-Prérequis : Python 3.11 ou plus récent et un accès Internet pour la collecte météo et les données de zones de dégel. MongoDB est facultatif; sans connexion MongoDB, le DAO utilise `src/Service_DAO/db_incidents.json`.
+Prérequis : Python 3.12 ou plus récent et un accès Internet pour la collecte météo et les données de zones de dégel. Le workflow CI vérifie la syntaxe du code sous Python 3.12 et 3.13. MongoDB est facultatif; sans connexion MongoDB, le DAO utilise `src/Service_DAO/db_incidents.json`.
 
 Chaque composant possède son propre `requirements.txt` et doit être lancé dans un terminal séparé. Pour chacun des cinq composants ci-dessous, ouvrez un terminal à la racine du dépôt, puis exécutez les commandes de préparation en remplaçant `Service_Auth` par le dossier voulu :
 
@@ -63,6 +63,15 @@ Sur le cloud, définissez les variables d’environnement `SERV_AUTH_URL`, `SERV
 - La gestion des erreurs, la validation des entrées, les délais d’attente et les tests automatisés restent à renforcer, en particulier lors des appels aux API externes.
 - Les services API démarrent en mode debug dans leur configuration locale; ce mode doit être désactivé pour tout déploiement réel.
 
+## Sources de données, attribution et licences
+
+| Source | Données utilisées et traitement | Attribution et licence |
+|---|---|---|
+| [Open-Meteo Historical Weather API](https://open-meteo.com/en/docs/historical-weather-api), endpoint [Archive API](https://archive-api.open-meteo.com/v1/archive) | Pour les coordonnées et la date/heure de l’incident : température, pluie, neige, couverture nuageuse, vent et code météo horaires; lever et coucher du soleil quotidiens. L’application affiche les valeurs de l’heure de l’incident et calcule les minimums, maximums et cumuls des 24 heures précédentes. Le modèle/source météorologique est laissé à la sélection par défaut de l’API (aucun modèle n’est fixé dans la requête); la disponibilité historique dépend donc de l’API. Documentation consultée le 7 novembre 2026. | Les données de l’API sont sous [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Attribution : « Données météo par [Open-Meteo.com](https://open-meteo.com/), adaptées (résumés calculés sur 24 h) », avec un lien vers la licence. Citation du logiciel : Zippenfenig, P. (2023). *Open-Meteo.com Weather API* [logiciel]. Zenodo. [https://doi.org/10.5281/zenodo.7970649](https://doi.org/10.5281/zenodo.7970649). Pour une analyse scientifique reproductible, consigner aussi la date d’accès, les paramètres de requête et le modèle/dataset utilisé lorsque cette information est disponible. |
+| Ministère des Transports et de la Mobilité durable du Québec, [Zone de dégel](https://www.donneesquebec.ca/recherche/dataset/zone-de-degel), consulté par le [service WFS GeoJSON](https://ws.mapserver.transports.gouv.qc.ca/swtq?service=wfs&version=2.0.0&request=getfeature&typename=ms:zone_degel&outfile=ZoneDegel&srsname=EPSG:4326&outputformat=geojson) | Polygones des zones 1–3 et propriétés de période de dégel; l’application repère le polygone contenant les coordonnées de l’incident et affiche sa zone et ses dates. Couverture : Québec. Le jeu est mis à jour au besoin; sa propriété `dat_maj` indique la date de mise à jour des données. Métadonnées consultées le 7 novembre 2026. | Le catalogue [Données Québec](https://www.donneesquebec.ca/recherche/dataset/zone-de-degel) indique la licence [CC BY 4.0](https://www.donneesquebec.ca/licence/#cc-by). Citation : Ministère des Transports et de la Mobilité durable du Québec. (s. d.). *Zone de dégel* [jeu de données]. Données Québec. |
+
+Les données proviennent de services en ligne et peuvent évoluer ou être indisponibles. Pour reproduire une collecte, consigner la date d’accès, les paramètres de requête et les dates de mise à jour des sources. La licence des données ne détermine pas celle du code de ce projet.
+
 ---
 
 <a id="english"></a>
@@ -93,7 +102,7 @@ The web app communicates with the authentication and data services. The data ser
 
 ### Getting started locally
 
-Prerequisites: Python 3.11 or later and Internet access for weather and thaw-zone data. MongoDB is optional; without a MongoDB connection, the DAO uses `src/Service_DAO/db_incidents.json`.
+Prerequisites: Python 3.12 or later and Internet access for weather and thaw-zone data. The CI workflow checks source syntax on Python 3.12 and 3.13. MongoDB is optional; without a MongoDB connection, the DAO uses `src/Service_DAO/db_incidents.json`.
 
 Each component has its own `requirements.txt` and must run in a separate terminal. For each of the five components below, open a terminal at the repository root and run the setup commands, replacing `Service_Auth` with the component’s folder:
 
@@ -127,3 +136,12 @@ For cloud deployment, set the `SERV_AUTH_URL`, `SERV_COLLECTE_URL`, `SERV_DAO_UR
 - Local JSON storage is intended for development and demonstration, not concurrent access or production persistence.
 - Error handling, input validation, timeouts, and automated tests need improvement, particularly around external API calls.
 - The API services start in debug mode in their local configuration; disable it before any real deployment.
+
+### Data sources, attribution and licenses
+
+| Source | Data used and processing | Attribution and license |
+|---|---|---|
+| [Open-Meteo Historical Weather API](https://open-meteo.com/en/docs/historical-weather-api), [Archive API endpoint](https://archive-api.open-meteo.com/v1/archive) | For the incident’s coordinates and date/time: hourly temperature, rain, snowfall, cloud cover, wind, and weather code; daily sunrise and sunset. The app displays values for the incident hour and calculates minimums, maximums, and totals for the preceding 24 hours. The weather model/source is left to the API’s default selection (the request does not pin a model), so historical availability depends on the API. Documentation accessed November 7, 2026. | API data are licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Attribution: “Weather data by [Open-Meteo.com](https://open-meteo.com/), adapted (24-hour summaries calculated),” with a link to the license. Software citation: Zippenfenig, P. (2023). *Open-Meteo.com Weather API* [Computer software]. Zenodo. [https://doi.org/10.5281/zenodo.7970649](https://doi.org/10.5281/zenodo.7970649). For reproducible research, also record the access date, query parameters, and model/dataset used when available. |
+| Québec Ministère des Transports et de la Mobilité durable, [Zone de dégel](https://www.donneesquebec.ca/recherche/dataset/zone-de-degel), accessed through the [WFS GeoJSON service](https://ws.mapserver.transports.gouv.qc.ca/swtq?service=wfs&version=2.0.0&request=getfeature&typename=ms:zone_degel&outfile=ZoneDegel&srsname=EPSG:4326&outputformat=geojson) | Polygons for thaw zones 1–3 and their thaw-period properties; the app finds the polygon containing the incident coordinates and displays its zone and dates. Coverage: Québec. The dataset is updated as needed; its `dat_maj` property records the data update date. Metadata accessed November 7, 2026. | The [Données Québec catalog](https://www.donneesquebec.ca/recherche/dataset/zone-de-degel) identifies the license as [CC BY 4.0](https://www.donneesquebec.ca/licence/#cc-by). Citation: Ministère des Transports et de la Mobilité durable du Québec. (n.d.). *Zone de dégel* [Data set]. Données Québec. |
+
+These sources are online services and may change or become unavailable. To reproduce a collection, record the access date, query parameters, and source update dates. The data licenses do not determine the license for this project’s code.

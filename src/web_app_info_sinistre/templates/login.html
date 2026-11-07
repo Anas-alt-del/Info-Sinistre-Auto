@@ -8,6 +8,10 @@
             <p>{{ _("Entrez vos identifiants pour accéder à l'application") }}</p>
         </div>
 
+        <div class="alert alert-info py-2" role="note">
+            {{ _("Identifiants de test : utilisateur user, mot de passe user1234") }}
+        </div>
+
         <form method="POST" action="/login">
             <div class="mb-3">
                 <label for="username" class="form-label">{{ _("Nom d'utilisateur") }}</label>

@@ -49,6 +49,9 @@ TRANSLATIONS = {
     "Entrez vos identifiants pour accéder à l'application": (
         "Enter your credentials to access the application"
     ),
+    "Identifiants de test : utilisateur user, mot de passe user1234": (
+        "Test credentials: username user, password user1234"
+    ),
     "Nom d'utilisateur": "Username",
     "Entrez votre nom d'utilisateur": "Enter your username",
     "Mot de passe": "Password",
