@@ -21,13 +21,13 @@ if __name__ == '__main__':
                         "SERV_DATA_URL"]:
                 try:
                     # Récupère l'adresse depuis la variable d'environnement correspondante.
-                    requests.get(f"{os.getenv(uri)}/health", timeout=30)
+                    requests.get(f"{os.getenv(uri)}/health", timeout=60)
                 except:
                     pass
 
         keep_warm()
         scheduler = BackgroundScheduler()
-        scheduler.add_job(keep_warm, 'interval', minutes=5)
+        scheduler.add_job(keep_warm, 'interval', minutes=1)
         scheduler.start()
 
     port = int(os.environ.get('PORT', 5000))
