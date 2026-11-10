@@ -4,14 +4,13 @@ date + heure) depuis Service_Data, collecte les données météo depuis leur sou
 les traite et les renvoie à Service_Data au format JSON
 '''
 
-import jsonify
 import os
 from shapely.geometry import shape, Point
 
 from datetime import datetime, timedelta
 from operator import concat
 
-from flask import Flask, request
+from flask import Flask, jsonify, request
 from flask_cors import CORS
 import requests
 
