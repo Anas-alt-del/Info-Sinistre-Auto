@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Ping main service
-        run: curl -s https://projet-c56-c57-web-app-infos-sinistre.onrender.com/health
+        run: curl -s https://info-sinistre-auto.onrender.com/health
       
       - name: Ping auth service
         run: curl -s https://projet-c56-c57-service-auth.onrender.com/health
