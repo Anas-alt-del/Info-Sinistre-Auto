@@ -13,11 +13,11 @@ jobs:
       - name: Ping auth service
         run: curl -s https://projet-c56-c57-service-auth.onrender.com/health
       
-      - name: Ping collecte service
-        run: curl -s https://projet-c56-c57-service-collecte.onrender.com/health
-      
+      - name: Ping data service
+        run: curl -s https://projet-c56-c57-lr9p.onrender.com/health
+        
       - name: Ping dao service
         run: curl -s https://projet-c56-c57.onrender.com/health
       
-      - name: Ping data service
-        run: curl -s https://projet-c56-c57-lr9p.onrender.com/health
+      - name: Ping collecte service
+        run: curl -s https://projet-c56-c57-service-collecte.onrender.com/health
