@@ -7,6 +7,9 @@ TRANSLATIONS = {
     "Info-Sinistre-Auto": "Auto Claim Information",
     "Langue": "Language",
     "Tableau de bord sinistres": "Claims dashboard",
+    "Si certaines fonctionnalités ne sont pas disponibles, veuillez réessayer dans une minute : les services Web sont en cours de démarrage.": (
+        "If some features are unavailable, please try again in a minute while the web services start."
+    ),
     "Bienvenue! Gérez et recherchez facilement les données concernant les sinistres automobiles.": (
         "Welcome! Easily manage and search automobile claim data."
     ),

@@ -1,6 +1,8 @@
 """Routage des URL et traitement des requêtes de l'application Flask."""
 import json
 import os
+from threading import Lock
+from time import monotonic
 
 from flask import Flask, render_template, flash, redirect, session, request
 # Flask est le framework principal.
@@ -39,6 +41,9 @@ KEEP_ALIVE_WORKFLOW_URL = (
     'https://api.github.com/repos/Anas-alt-del/Info-Sinistre-Auto/'
     'actions/workflows/keep-alive.yml/dispatches'
 )
+KEEP_ALIVE_DISPATCH_INTERVAL_SECONDS = 5 * 60
+_keep_alive_dispatch_lock = Lock()
+_last_keep_alive_dispatch = None
 
 
 @app.context_processor
@@ -60,32 +65,53 @@ def token_required(view_function):
 
 
 def trigger_keep_alive_workflow():
-    """Dispatches the keep-alive workflow when its server-side token is configured."""
+    """Déclenche le workflow au plus une fois toutes les cinq minutes."""
+    global _last_keep_alive_dispatch
+
     token = os.getenv('GITHUB_TOKEN')
     if not token:
+        # La page reste accessible même si aucun jeton GitHub n'est configuré.
         app.logger.warning("GITHUB_TOKEN is not configured; keep-alive dispatch skipped.")
         return
 
-    try:
-        response = requests.post(
-            KEEP_ALIVE_WORKFLOW_URL,
-            headers={
-                'Accept': 'application/vnd.github+json',
-                'Authorization': f'Bearer {token}',
-                'X-GitHub-Api-Version': '2022-11-28',
-            },
-            json={'ref': 'main'},
-            timeout=5,
-        )
-        response.raise_for_status()
-    except requests.exceptions.RequestException:
-        app.logger.exception("Unable to dispatch the keep-alive workflow.")
+    # Le verrou empêche deux requêtes simultanées de lancer deux workflows.
+    with _keep_alive_dispatch_lock:
+        # L'horloge monotone n'est pas affectée par les changements d'heure système.
+        now = monotonic()
+        if (
+            _last_keep_alive_dispatch is not None
+            and now - _last_keep_alive_dispatch < KEEP_ALIVE_DISPATCH_INTERVAL_SECONDS
+        ):
+            # Les visites pendant la fenêtre de cinq minutes ne relancent pas le workflow.
+            return
+
+        # Le délai commence à la tentative, même si l'appel à GitHub échoue.
+        _last_keep_alive_dispatch = now
+        try:
+            response = requests.post(
+                KEEP_ALIVE_WORKFLOW_URL,
+                headers={
+                    'Accept': 'application/vnd.github+json',
+                    'Authorization': f'Bearer {token}',
+                    'X-GitHub-Api-Version': '2022-11-28',
+                },
+                json={'ref': 'main'},
+                timeout=5,
+            )
+            response.raise_for_status()
+        except requests.exceptions.RequestException:
+            # L'erreur est journalisée sans bloquer l'affichage de la page d'accueil.
+            app.logger.exception("Unable to dispatch the keep-alive workflow.")
 
 
 @app.route('/', methods=['GET'])
 @app.route('/index', methods=['GET'])
 def index():
     """Route d'accueil - affiche les options de login ou recherche"""
+    flash(translate_text(
+        "Si certaines fonctionnalités ne sont pas disponibles, veuillez réessayer dans une minute : "
+        "les services Web sont en cours de démarrage."
+    ), 'info')
     trigger_keep_alive_workflow()
     try:
         response = requests.get(DATA_SERVICE_ENDPOINTS['database_status'], timeout=8)
