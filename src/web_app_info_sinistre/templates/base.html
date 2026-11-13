@@ -204,6 +204,34 @@
             margin-bottom: 20px;
         }
 
+        nav[aria-label] a,
+        .dev-link {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 5px;
+            background: white;
+            color: #3f2d5a;
+            font-weight: 600;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        nav[aria-label] a[aria-current="page"] {
+            background: #eee9f8;
+        }
+
+        nav[aria-label] a:hover,
+        .dev-link:hover {
+            background: #f3edff;
+            color: #241632;
+        }
+
+        nav[aria-label] a:focus-visible,
+        .dev-link:focus-visible {
+            outline: 3px solid #241632;
+            outline-offset: 2px;
+        }
+
         /* Responsive Design */
         @media (max-width: 1024px) {
             .content-wrapper {
