@@ -111,7 +111,7 @@ def index():
     flash(translate_text(
         "Si certaines fonctionnalités ne sont pas disponibles, veuillez réessayer dans une minute : "
         "les services Web sont en cours de démarrage."
-    ), 'info')
+    ), 'startup')
     trigger_keep_alive_workflow()
     try:
         response = requests.get(DATA_SERVICE_ENDPOINTS['database_status'], timeout=8)
