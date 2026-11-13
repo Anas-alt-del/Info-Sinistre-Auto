@@ -1,5 +1,6 @@
 """Routage des URL et traitement des requêtes de l'application Flask."""
 import json
+import os
 
 from flask import Flask, render_template, flash, redirect, session, request
 # Flask est le framework principal.
@@ -34,6 +35,11 @@ app.config.from_object(Config)
 
 CORS(app)
 
+KEEP_ALIVE_WORKFLOW_URL = (
+    'https://api.github.com/repos/Anas-alt-del/Info-Sinistre-Auto/'
+    'actions/workflows/keep-alive.yml/dispatches'
+)
+
 
 @app.context_processor
 def inject_translations():
@@ -53,10 +59,34 @@ def token_required(view_function):
     return decorated_function
 
 
+def trigger_keep_alive_workflow():
+    """Dispatches the keep-alive workflow when its server-side token is configured."""
+    token = os.getenv('GITHUB_TOKEN')
+    if not token:
+        app.logger.warning("GITHUB_TOKEN is not configured; keep-alive dispatch skipped.")
+        return
+
+    try:
+        response = requests.post(
+            KEEP_ALIVE_WORKFLOW_URL,
+            headers={
+                'Accept': 'application/vnd.github+json',
+                'Authorization': f'Bearer {token}',
+                'X-GitHub-Api-Version': '2022-11-28',
+            },
+            json={'ref': 'main'},
+            timeout=5,
+        )
+        response.raise_for_status()
+    except requests.exceptions.RequestException:
+        app.logger.exception("Unable to dispatch the keep-alive workflow.")
+
+
 @app.route('/', methods=['GET'])
 @app.route('/index', methods=['GET'])
 def index():
     """Route d'accueil - affiche les options de login ou recherche"""
+    trigger_keep_alive_workflow()
     try:
         response = requests.get(DATA_SERVICE_ENDPOINTS['database_status'], timeout=8)
         database_status = response.json() if response.ok else None

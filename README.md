@@ -53,7 +53,7 @@ Lancez ensuite chaque application dans son propre terminal :
 
 Le projet peut être déployé localement ou sur le cloud. En local, les services utilisent ces ports par défaut et la configuration référence `127.0.0.1`. Démarrez les services d’authentification, de collecte, de DAO et de données avant l’application Web. Ouvrez ensuite [http://127.0.0.1:5000](http://127.0.0.1:5000). Les documentations Swagger sont disponibles à [http://127.0.0.1:5010/apidocs](http://127.0.0.1:5010/apidocs) et [http://127.0.0.1:5602/apidocs](http://127.0.0.1:5602/apidocs).
 
-Sur le cloud, définissez les variables d’environnement `SERV_AUTH_URL`, `SERV_COLLECTE_URL`, `SERV_DAO_URL` et `SERV_DATA_URL` avec les URL des services correspondants afin de configurer leurs communications. Pour utiliser MongoDB, connectez-le depuis l’interface Web avec une URI valide; sinon le stockage JSON local est utilisé.
+Sur le cloud, définissez les variables d’environnement `SERV_AUTH_URL`, `SERV_COLLECTE_URL`, `SERV_DAO_URL` et `SERV_DATA_URL` avec les URL des services correspondants afin de configurer leurs communications. Pour déclencher le workflow `keep-alive.yml` lors de chaque visite de la page d’accueil, configurez aussi `GITHUB_TOKEN` dans l’environnement de l’application Web avec un jeton GitHub limité au dépôt et doté de la permission Actions « Read and write ». Le jeton reste côté serveur; sans lui, la page s’affiche normalement, mais le déclenchement est ignoré et consigné dans les logs. Le workflow conserve également son déclenchement toutes les cinq minutes. Pour utiliser MongoDB, connectez-le depuis l’interface Web avec une URI valide; sinon le stockage JSON local est utilisé.
 
 ## Limites connues
 
@@ -127,7 +127,7 @@ Then start each application in its own terminal:
 
 The project can be deployed locally or in the cloud. For local deployment, the services use these ports by default, and configuration points to `127.0.0.1`. Start authentication, collection, DAO, and data services before the web app. Then open [http://127.0.0.1:5000](http://127.0.0.1:5000). Swagger documentation is available at [http://127.0.0.1:5010/apidocs](http://127.0.0.1:5010/apidocs) and [http://127.0.0.1:5602/apidocs](http://127.0.0.1:5602/apidocs).
 
-For cloud deployment, set the `SERV_AUTH_URL`, `SERV_COLLECTE_URL`, `SERV_DAO_URL`, and `SERV_DATA_URL` environment variables to the corresponding service URLs to configure inter-service communication. To use MongoDB, connect it from the web interface with a valid URI; otherwise, local JSON storage is used.
+For cloud deployment, set the `SERV_AUTH_URL`, `SERV_COLLECTE_URL`, `SERV_DAO_URL`, and `SERV_DATA_URL` environment variables to the corresponding service URLs to configure inter-service communication. To dispatch `keep-alive.yml` whenever someone visits the home page, also configure `GITHUB_TOKEN` in the web app's environment with a GitHub token restricted to this repository and the Actions “Read and write” permission. The token stays server-side; without it, the page still loads normally, but dispatch is skipped and logged. The workflow continues to run every five minutes as well. To use MongoDB, connect it from the web interface with a valid URI; otherwise, local JSON storage is used.
 
 ### Known limitations
 

@@ -1,0 +1,8 @@
+SERV_AUTH_URL
+https://projet-c56-c57-service-auth.onrender.com
+SERV_COLLECTE_URL
+https://projet-c56-c57-service-collecte.onrender.com
+SERV_DAO_URL
+https://projet-c56-c57.onrender.com
+SERV_DATA_URL
+https://projet-c56-c57-lr9p.onrender.com
