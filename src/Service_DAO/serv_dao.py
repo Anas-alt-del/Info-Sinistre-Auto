@@ -112,7 +112,18 @@ def database_disconnect():
 @app.route("/dao/incidents", methods=["GET"])
 def find_incident():
     """Recherche un incident par réclamation ou informations de dossier."""
-    claim_details = request.get_json(silent=True) or {}
+    claim_details = {
+        "id_reclamation": request.args.get("id_reclamation"),
+        "date": request.args.get("date"),
+        "heure": request.args.get("heure"),
+    }
+    for coordinate in ("latitude", "longitude"):
+        value = request.args.get(coordinate)
+        try:
+            claim_details[coordinate] = float(value) if value is not None else None
+        except ValueError:
+            return jsonify({"message": "Latitude et longitude doivent être numériques."}), 400
+
     incident = find_incident_by_claim_id(claim_details)
     if incident is not None:
         return jsonify(incident), 200

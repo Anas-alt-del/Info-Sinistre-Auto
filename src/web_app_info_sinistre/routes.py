@@ -257,7 +257,7 @@ def incident_search_form():
             headers = {'Authorization': f'Bearer {session.get("auth_token")}'}
             response = requests.get(
                 DATA_SERVICE_ENDPOINTS['find_incident'],
-                json=payload,
+                params=payload,
                 headers=headers
             )
 

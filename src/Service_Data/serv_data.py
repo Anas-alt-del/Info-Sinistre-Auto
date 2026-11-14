@@ -27,7 +27,7 @@ def get_bearer_token():
     auth_header = request.headers.get('Authorization', '')
     if auth_header.startswith('Bearer '):
         return auth_header.split(' ')[1]  # retourner uniquement le token
-    return None
+    return request.headers.get('token')
 
 def is_token_valid(token):
     try:
@@ -54,31 +54,34 @@ def find_incident():
         type: string
         required: true
         description: Clé d'autentification
-      - in: body
-        name: payload
-        description: Les informations concernant le dossier (id_reclamation, date, heure, latitude, longitude)
-        schema:
-            type: object
-            properties:
-                id_reclamation:
-                    type: string
-                    example: "ABC123"
-                date:
-                    type: string
-                    format: date
-                    example: "2025-12-31"
-                heure:
-                    type: string
-                    format: time
-                    example: "19:15"
-                latitude:
-                    type: number
-                    format: float
-                    example: 49.914
-                longitude:
-                    type: number
-                    format: float
-                    example: 74.963
+      - in: query
+        name: id_reclamation
+        type: string
+        required: false
+        example: "ABC123"
+      - in: query
+        name: date
+        type: string
+        format: date
+        required: false
+        example: "2025-12-31"
+      - in: query
+        name: heure
+        type: string
+        required: false
+        example: "19:15"
+      - in: query
+        name: latitude
+        type: number
+        format: float
+        required: false
+        example: 49.914
+      - in: query
+        name: longitude
+        type: number
+        format: float
+        required: false
+        example: 74.963
     responses:
         200:
             description: Dossier trouvé avec le id_reclamation
@@ -95,8 +98,19 @@ def find_incident():
     if not is_token_valid(token):
         return jsonify({"message": "Erreur 401: Unauthorized. Token non fourni, invalide ou expiré"}), 401
 
-    payload = request.get_json()
-    response = requests.get(DAO_SERVICE_ENDPOINTS['find_incident'], json=payload)
+    payload = {
+        'id_reclamation': request.args.get('id_reclamation'),
+        'date': request.args.get('date'),
+        'heure': request.args.get('heure'),
+    }
+    for coordinate in ('latitude', 'longitude'):
+        value = request.args.get(coordinate)
+        try:
+            payload[coordinate] = float(value) if value is not None else None
+        except ValueError:
+            return jsonify({"message": "Latitude et longitude doivent être numériques."}), 400
+
+    response = requests.get(DAO_SERVICE_ENDPOINTS['find_incident'], params=payload)
     result = response.json()
     code = response.status_code
     return result, code
