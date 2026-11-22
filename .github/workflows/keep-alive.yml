@@ -6,18 +6,29 @@ on:
 jobs:
   ping:
     runs-on: ubuntu-latest
+    strategy:
+      # Un service endormi ne doit pas annuler les pings des autres.
+      fail-fast: false
+      matrix:
+        service:
+          - name: web
+            url: https://info-sinistre-auto.onrender.com/health
+          - name: auth
+            url: https://projet-c56-c57-service-auth.onrender.com/health
+          - name: data
+            url: https://projet-c56-c57-lr9p.onrender.com/health
+          - name: dao
+            url: https://projet-c56-c57.onrender.com/health
+          - name: collecte
+            url: https://projet-c56-c57-service-collecte.onrender.com/health
+
     steps:
-      - name: Ping main service
-        run: curl -s https://info-sinistre-auto.onrender.com/health
-      
-      - name: Ping auth service
-        run: curl -s https://projet-c56-c57-service-auth.onrender.com/health
-      
-      - name: Ping data service
-        run: curl -s https://projet-c56-c57-lr9p.onrender.com/health
-        
-      - name: Ping dao service
-        run: curl -s https://projet-c56-c57.onrender.com/health
-      
-      - name: Ping collecte service
-        run: curl -s https://projet-c56-c57-service-collecte.onrender.com/health
+      - name: Ping ${{ matrix.service.name }} service
+        run: |
+          curl -sS \
+            --max-time 120 \
+            --retry 2 \
+            --retry-delay 5 \
+            --retry-connrefused \
+            -o /dev/null \
+            "${{ matrix.service.url }}"

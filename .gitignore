@@ -20,3 +20,5 @@
 /src/Service_Auth/__pycache__
 
 /docs/archive/
+
+.vscode/

@@ -41,7 +41,7 @@ KEEP_ALIVE_WORKFLOW_URL = (
     'https://api.github.com/repos/Anas-alt-del/Info-Sinistre-Auto/'
     'actions/workflows/keep-alive.yml/dispatches'
 )
-KEEP_ALIVE_DISPATCH_INTERVAL_SECONDS = 5 * 60
+KEEP_ALIVE_DISPATCH_INTERVAL_SECONDS = 150
 _keep_alive_dispatch_lock = Lock()
 _last_keep_alive_dispatch = None
 
@@ -104,6 +104,20 @@ def trigger_keep_alive_workflow():
             app.logger.exception("Unable to dispatch the keep-alive workflow.")
 
 
+@app.before_request
+def keep_services_awake():
+    """Relance le workflow de maintien en veille à chaque interaction.
+
+    Le déclencheur est déjà limité à 150 secondes, donc
+    l'appeler sur chaque requête ne génère pas d'appels GitHub supplémentaires.
+    """
+    # Les fichiers statiques et la sonde /health ne sont pas des interactions.
+    if request.endpoint in ('static', 'health'):
+        return None
+    trigger_keep_alive_workflow()
+    return None
+
+
 @app.route('/', methods=['GET'])
 @app.route('/index', methods=['GET'])
 def index():
@@ -112,7 +126,6 @@ def index():
         "Si certaines fonctionnalités ne sont pas disponibles, veuillez réessayer dans une minute : "
         "les services Web sont en cours de démarrage."
     ), 'startup')
-    trigger_keep_alive_workflow()
     try:
         response = requests.get(DATA_SERVICE_ENDPOINTS['database_status'], timeout=8)
         database_status = response.json() if response.ok else None
